@@ -5,10 +5,10 @@ import com.ementor.userservice.config.JwtService;
 import com.ementor.userservice.dto.AuthenticationRequest;
 import com.ementor.userservice.dto.AuthenticationResponse;
 import com.ementor.userservice.dto.RegisterRequest;
-import com.ementor.userservice.entity.Token;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.TokenTypeEnum;
-import com.ementor.userservice.repo.TokenRepository;
+import com.ementor.userservice.redis.entity.StoredRedisToken;
+import com.ementor.userservice.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.repo.UsersRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 	private final UsersRepo repository;
-	private final TokenRepository tokenRepository;
+	private final StoredRedisTokenRepo storedRedisTokenRepo;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
@@ -69,25 +69,26 @@ public class AuthenticationService {
 
 	private void saveUserToken(User user,
 			String jwtToken) {
-		var token = Token.builder()
-			.user(user)
+		var token = StoredRedisToken.builder()
+			.userName(user.getEmail())
+			.userId(user.getId())
 			.token(jwtToken)
 			.tokenType(TokenTypeEnum.BEARER)
 			.expired(false)
 			.revoked(false)
 			.build();
-		tokenRepository.save(token);
+		storedRedisTokenRepo.save(token);
 	}
 
 	private void revokeAllUserTokens(User user) {
-		var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+		var validUserTokens = storedRedisTokenRepo.findAllValidTokenByUserId(user.getId());
 		if (validUserTokens.isEmpty())
 			return;
 		validUserTokens.forEach(token -> {
 			token.setExpired(true);
 			token.setRevoked(true);
 		});
-		tokenRepository.saveAll(validUserTokens);
+		storedRedisTokenRepo.saveAll(validUserTokens);
 	}
 
 	public void refreshToken(HttpServletRequest request,

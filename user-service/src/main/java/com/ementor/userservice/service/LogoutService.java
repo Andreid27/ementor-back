@@ -1,7 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.service;
 
-import com.ementor.userservice.repo.TokenRepository;
+import com.ementor.userservice.redis.repo.StoredRedisTokenRepo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
 
-	private final TokenRepository tokenRepository;
+	private final StoredRedisTokenRepo storedRedisTokenRepo;
 
 	@Override
 	public void logout(HttpServletRequest request,
@@ -26,12 +26,12 @@ public class LogoutService implements LogoutHandler {
 			return;
 		}
 		jwt = authHeader.substring(7);
-		var storedToken = tokenRepository.findByToken(jwt)
+		var storedToken = storedRedisTokenRepo.findByToken(jwt)
 			.orElse(null);
 		if (storedToken != null) {
 			storedToken.setExpired(true);
 			storedToken.setRevoked(true);
-			tokenRepository.save(storedToken);
+			storedRedisTokenRepo.save(storedToken);
 			SecurityContextHolder.clearContext();
 		}
 	}
