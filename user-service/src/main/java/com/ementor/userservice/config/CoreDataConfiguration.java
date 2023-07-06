@@ -3,6 +3,7 @@ package com.ementor.userservice.config;
 
 import com.ementor.userservice.entity.User;
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.Objects;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +18,6 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import utils.FlywayUtils;
-
-import java.util.Objects;
 
 @Configuration
 @EnableJpaRepositories(
@@ -59,7 +58,8 @@ public class CoreDataConfiguration {
 	public PlatformTransactionManager coreTransactionManager(
 			final @Qualifier("coreEntityManagerFactory") LocalContainerEntityManagerFactoryBean coreEntityManagerFactory) {
 		return new JpaTransactionManager(Objects.requireNonNull(coreEntityManagerFactory.getObject()));
-		//adaugat de sonarLint Object.requireNonNull -> vezi daca ai erori sa il scoti
+		// adaugat de sonarLint Object.requireNonNull -> vezi daca ai erori sa
+		// il scoti
 	}
 
 }

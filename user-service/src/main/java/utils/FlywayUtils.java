@@ -26,7 +26,9 @@ public final class FlywayUtils {
 			Boolean outOfOrder) {
 		createLogger();
 		Flyway.configure()
-			.outOfOrder(outOfOrder)  //inainte de sonarLint: 			.outOfOrder(outOfOrder != null ? outOfOrder : false)
+			.outOfOrder(outOfOrder) // inainte de sonarLint:
+									// .outOfOrder(outOfOrder != null ?
+									// outOfOrder : false)
 			.locations(folder)
 			.dataSource(props.getUrl(), props.getUsername(), props.getPassword())
 			.load()
@@ -34,7 +36,8 @@ public final class FlywayUtils {
 	}
 
 	private static void createLogger() {
-		//modificat de sonarLint din 	LogFactory.setLogCreator(new LogCreator() {  			-> in chestia aia cu lambda
+		// modificat de sonarLint din LogFactory.setLogCreator(new LogCreator()
+		// { -> in chestia aia cu lambda
 
 		LogFactory.setLogCreator(clazz -> new Log() {
 
