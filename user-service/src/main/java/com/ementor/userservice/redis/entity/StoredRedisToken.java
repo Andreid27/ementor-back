@@ -1,10 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.redis.entity;
 
-import com.ementor.userservice.enums.TokenTypeEnum;
 import com.ementor.userservice.service.ConstantUtils;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import java.io.Serializable;
 import java.util.UUID;
@@ -21,7 +18,7 @@ import org.springframework.data.redis.core.RedisHash;
 @RedisHash(value = ConstantUtils.RedisHashName, timeToLive = 7200L)
 public class StoredRedisToken implements Serializable {
 	@Id
-	private String id;				//in our case the id is the email
+	private String id; // in our case the id is the email
 
 	private UUID userId;
 

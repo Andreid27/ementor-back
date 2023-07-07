@@ -6,7 +6,6 @@ import com.ementor.userservice.dto.AuthenticationRequest;
 import com.ementor.userservice.dto.AuthenticationResponse;
 import com.ementor.userservice.dto.RegisterRequest;
 import com.ementor.userservice.entity.User;
-import com.ementor.userservice.enums.TokenTypeEnum;
 import com.ementor.userservice.redis.entity.StoredRedisToken;
 import com.ementor.userservice.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.repo.UsersRepo;

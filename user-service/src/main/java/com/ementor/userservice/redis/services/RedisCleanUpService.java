@@ -1,48 +1,38 @@
+/* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.redis.services;
 
 import com.ementor.userservice.service.ConstantUtils;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-
 @Service
 public class RedisCleanUpService {
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
-    @Scheduled(fixedRate = 60000)
-    public void deleteExpiredKeys() {
-        // get all the keys from Redis
-        Set<String> keys = stringRedisTemplate.keys("*");
-        System.out.println(keys);
-        // iterate over the keys and delete the ones that have expired ttl
-        for (String key : keys) {
-            Long ttl = stringRedisTemplate.getExpire(key);
-            System.out.println(ttl);
-        }
-    }
+	@Value("${ementor.config.redis.garbage-delete}")
+	private final long cleanRedisSetGarbageValues = 24 * 60 * 60000; // every
+																		// 24h
+	@Scheduled(fixedRate = cleanRedisSetGarbageValues)
+	public void removeExpiredMembers() {
+		// Get the set operations from the template
+		SetOperations<String, String> setOps = stringRedisTemplate.opsForSet();
 
-    // Get the set operations from the template
-    @Scheduled(fixedRate = 59000)
-    public void removeExpiredMembers() {
-        // Get the set operations from the template
-        SetOperations<String, String> setOps = stringRedisTemplate.opsForSet();
+		// Get all the members of the set
+		Set<String> members = setOps.members(ConstantUtils.RedisHashName);
 
-        // Get all the members of the set
-        Set<String> members = setOps.members(ConstantUtils.RedisHashName);
-
-        // Loop through each member
-        for (String member : members) {
-            // Check if the corresponding key exists
-            if (!stringRedisTemplate.hasKey("StoredRedisToken:"+member)) {
-                // Remove the member from the set
-                System.out.print(member+", ");
-                setOps.remove(ConstantUtils.RedisHashName, member);
-            }
-        }
-    }
+		// Loop through each member
+		for (String member : members) {
+			// Check if the corresponding key exists
+			if (!stringRedisTemplate.hasKey(ConstantUtils.RedisHashName + ":" + member)) {
+				// Remove the member from the set
+				setOps.remove(ConstantUtils.RedisHashName, member);
+			}
+		}
+	}
 }

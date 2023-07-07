@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			.getAuthentication() == null) {
 			UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 			var isTokenValid = storedRedisTokenRepo.findByToken(jwt)
-				.map(t ->!t.isRevoked())
+				.map(t -> !t.isRevoked())
 				.orElse(false);
 			if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
 				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
