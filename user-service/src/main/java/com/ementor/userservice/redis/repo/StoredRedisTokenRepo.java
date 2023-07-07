@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 
 public interface StoredRedisTokenRepo extends CrudRepository<StoredRedisToken, String> {
-	List<StoredRedisToken> findAllValidTokenByUserId(UUID id);
+	List<StoredRedisToken> findAllValidTokenById(UUID id);
 
 	Optional<StoredRedisToken> findByToken(String token);
 

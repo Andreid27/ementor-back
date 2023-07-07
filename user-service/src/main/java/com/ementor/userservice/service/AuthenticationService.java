@@ -70,7 +70,7 @@ public class AuthenticationService {
 	private void saveUserToken(User user,
 			String jwtToken) {
 		var token = StoredRedisToken.builder()
-			.userName(user.getEmail())
+			.id(user.getEmail())
 			.userId(user.getId())
 			.token(jwtToken)
 			.tokenType(TokenTypeEnum.BEARER)
@@ -81,7 +81,7 @@ public class AuthenticationService {
 	}
 
 	private void revokeAllUserTokens(User user) {
-		var validUserTokens = storedRedisTokenRepo.findAllValidTokenByUserId(user.getId());
+		var validUserTokens = storedRedisTokenRepo.findAllValidTokenById(user.getId());
 		if (validUserTokens.isEmpty())
 			return;
 		validUserTokens.forEach(token -> {

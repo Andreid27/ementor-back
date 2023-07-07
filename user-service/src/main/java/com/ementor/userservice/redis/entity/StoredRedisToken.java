@@ -4,7 +4,6 @@ package com.ementor.userservice.redis.entity;
 import com.ementor.userservice.enums.TokenTypeEnum;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import java.io.Serializable;
 import java.util.UUID;
@@ -18,11 +17,12 @@ import org.springframework.data.redis.core.RedisHash;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RedisHash(value = "StoredRedisToken", timeToLive = 60L)
+@RedisHash(value = "StoredRedisToken", timeToLive = 7200L)
 public class StoredRedisToken implements Serializable {
 	@Id
-	@GeneratedValue
-	public Integer id;
+	public String id;
+
+	public UUID userId;
 
 	public String token;
 
@@ -32,18 +32,6 @@ public class StoredRedisToken implements Serializable {
 	public boolean revoked;
 
 	public boolean expired;
-
-	public String userName;
-
-	public UUID userId;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
 	public String getToken() {
 		return token;
@@ -77,12 +65,12 @@ public class StoredRedisToken implements Serializable {
 		this.expired = expired;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getId() {
+		return id;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public UUID getUserId() {

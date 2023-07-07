@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,15 +41,15 @@ public class AuthenticationController {
 		service.refreshToken(request, response);
 	}
 
-	@PostMapping("/token/{id}")
-	public void token(@PathVariable int id) {
+	@PostMapping("/saveToken/{userId}")
+	public void token(@PathVariable String userId) {
 		StoredRedisToken storedRedisToken = new StoredRedisToken();
 		storedRedisToken.setToken("wowowo motherfucker");
-		storedRedisToken.setId(id);
+		storedRedisToken.setId(userId);
 		dao.save(storedRedisToken);
 	}
 
-	@GetMapping("/token")
+	@GetMapping("/tokens")
 	public List<StoredRedisToken> motherToken() {
 		// get all tokens from Redis
 		Iterable<StoredRedisToken> tokens = dao.findAll();
@@ -59,6 +60,14 @@ public class AuthenticationController {
 
 		// return the list
 		return tokenList;
+	}
+	@GetMapping("/token/{token}")
+	public StoredRedisToken getToken(@PathVariable String token) {
+		// get all tokens from Redis
+		Optional<StoredRedisToken> redisToken = dao.findByToken(token);
+
+		// return the list
+		return redisToken.get();
 	}
 
 }
