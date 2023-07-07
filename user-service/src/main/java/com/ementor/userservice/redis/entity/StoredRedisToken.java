@@ -2,6 +2,7 @@
 package com.ementor.userservice.redis.entity;
 
 import com.ementor.userservice.enums.TokenTypeEnum;
+import com.ementor.userservice.service.ConstantUtils;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -17,21 +18,16 @@ import org.springframework.data.redis.core.RedisHash;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RedisHash(value = "StoredRedisToken", timeToLive = 7200L)
+@RedisHash(value = ConstantUtils.RedisHashName, timeToLive = 7200L)
 public class StoredRedisToken implements Serializable {
 	@Id
-	public String id;
+	private String id;				//in our case the id is the email
 
-	public UUID userId;
+	private UUID userId;
 
-	public String token;
+	private String token;
 
-	@Enumerated(EnumType.STRING)
-	public TokenTypeEnum tokenType = TokenTypeEnum.BEARER;
-
-	public boolean revoked;
-
-	public boolean expired;
+	private Boolean revoked;
 
 	public String getToken() {
 		return token;
@@ -39,30 +35,6 @@ public class StoredRedisToken implements Serializable {
 
 	public void setToken(String token) {
 		this.token = token;
-	}
-
-	public TokenTypeEnum getTokenType() {
-		return tokenType;
-	}
-
-	public void setTokenType(TokenTypeEnum tokenType) {
-		this.tokenType = tokenType;
-	}
-
-	public boolean isRevoked() {
-		return revoked;
-	}
-
-	public void setRevoked(boolean revoked) {
-		this.revoked = revoked;
-	}
-
-	public boolean isExpired() {
-		return expired;
-	}
-
-	public void setExpired(boolean expired) {
-		this.expired = expired;
 	}
 
 	public String getId() {
@@ -79,5 +51,13 @@ public class StoredRedisToken implements Serializable {
 
 	public void setUserId(UUID userId) {
 		this.userId = userId;
+	}
+
+	public Boolean isRevoked() {
+		return revoked;
+	}
+
+	public void setRevoked(Boolean revoked) {
+		this.revoked = revoked;
 	}
 }

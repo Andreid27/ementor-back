@@ -29,7 +29,6 @@ public class LogoutService implements LogoutHandler {
 		var storedToken = storedRedisTokenRepo.findByToken(jwt)
 			.orElse(null);
 		if (storedToken != null) {
-			storedToken.setExpired(true);
 			storedToken.setRevoked(true);
 			storedRedisTokenRepo.save(storedToken);
 			SecurityContextHolder.clearContext();

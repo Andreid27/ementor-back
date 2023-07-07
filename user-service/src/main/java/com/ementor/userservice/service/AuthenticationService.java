@@ -73,9 +73,6 @@ public class AuthenticationService {
 			.id(user.getEmail())
 			.userId(user.getId())
 			.token(jwtToken)
-			.tokenType(TokenTypeEnum.BEARER)
-			.expired(false)
-			.revoked(false)
 			.build();
 		storedRedisTokenRepo.save(token);
 	}
@@ -85,7 +82,6 @@ public class AuthenticationService {
 		if (validUserTokens.isEmpty())
 			return;
 		validUserTokens.forEach(token -> {
-			token.setExpired(true);
 			token.setRevoked(true);
 		});
 		storedRedisTokenRepo.saveAll(validUserTokens);
