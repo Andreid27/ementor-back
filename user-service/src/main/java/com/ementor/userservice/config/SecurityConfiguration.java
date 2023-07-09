@@ -1,9 +1,6 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.config;
 
-import static com.ementor.userservice.enums.RoleEnum.ADMIN;
-import static com.ementor.userservice.enums.RoleEnum.PROFESSOR;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +33,6 @@ public class SecurityConfiguration {
 					"/swagger-resources/**", "/configuration/ui", "/configuration/security", "/swagger-ui/**", "/webjars/**",
 					"/user/**", "/swagger-ui.html")
 			.permitAll()
-
 
 			.anyRequest()
 			.authenticated()

@@ -11,7 +11,6 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,7 +40,7 @@ public class JwtService {
 
 	public String generateToken(UserDetails userDetails) {
 		String token = generateToken(new HashMap<>(), userDetails);
-		storedRedisTokenService.buildAndSaveToken(userDetails,token);
+		storedRedisTokenService.buildAndSaveToken(userDetails, token);
 		return token;
 	}
 
@@ -71,27 +70,14 @@ public class JwtService {
 			UserDetails userDetails) {
 		Date tokenDate = extractExpiration(token);
 		final String username = extractUsername(token);
-		boolean isUserNameSame=username.equals(userDetails.getUsername());
+		boolean isUserNameSame = username.equals(userDetails.getUsername());
 		boolean isTokenExpired = isTokenExpired(tokenDate);
-		boolean isTokenLastest = isTokenLastest(userDetails,token,tokenDate);
+		boolean isTokenLastest = isTokenLastest(userDetails, token, tokenDate);
 		// TODO here add the token validation from the redis db
 		return isTokenLastest && isUserNameSame && !isTokenExpired;
 
-
-
-
-
-
-		//TODO de testat toata logica de autentificare cu jwt si de salvare a noului token
-
-
-
-
-
-
-
-
-
+		// TODO de testat toata logica de autentificare cu jwt si de salvare a
+		// noului token
 
 	}
 
@@ -116,20 +102,24 @@ public class JwtService {
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 
-
-	public boolean isTokenLastest(UserDetails userDetails, String token, Date tokenDate){
-		Optional<StoredRedisToken> storedRedisToken=storedRedisTokenService.getStoredRedisToken(userDetails.getUsername());
-		if(storedRedisToken.isEmpty()){
+	public boolean isTokenLastest(UserDetails userDetails,
+			String token,
+			Date tokenDate) {
+		Optional<StoredRedisToken> storedRedisToken = storedRedisTokenService.getStoredRedisToken(userDetails.getUsername());
+		if (storedRedisToken.isEmpty()) {
 			storedRedisTokenService.buildAndSaveToken(userDetails, token);
 			return true;
 		}
 
-		if(storedRedisToken.get().getToken().equals(token)){
+		if (storedRedisToken.get()
+			.getToken()
+			.equals(token)) {
 			return true;
 		}
 
-		Date storedTokenDate = extractExpiration(storedRedisToken.get().getToken());
-		if(storedTokenDate.before(tokenDate)){
+		Date storedTokenDate = extractExpiration(storedRedisToken.get()
+			.getToken());
+		if (storedTokenDate.before(tokenDate)) {
 			storedRedisTokenService.buildAndSaveToken(userDetails, token);
 			return true;
 		}
