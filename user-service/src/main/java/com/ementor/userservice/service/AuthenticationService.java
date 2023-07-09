@@ -1,13 +1,14 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.service;
 
-import com.ementor.userservice.config.JwtService;
+import com.ementor.userservice.core.redis.entity.StoredRedisToken;
+import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
+import com.ementor.userservice.core.service.JwtService;
 import com.ementor.userservice.dto.AuthenticationRequest;
 import com.ementor.userservice.dto.AuthenticationResponse;
 import com.ementor.userservice.dto.RegisterRequest;
 import com.ementor.userservice.entity.User;
-import com.ementor.userservice.redis.entity.StoredRedisToken;
-import com.ementor.userservice.redis.repo.StoredRedisTokenRepo;
+import com.ementor.userservice.enums.RoleEnum;
 import com.ementor.userservice.repo.UsersRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +37,8 @@ public class AuthenticationService {
 			.lastName(request.getLastName())
 			.email(request.getEmail())
 			.password(passwordEncoder.encode(request.getPassword()))
-			.role(request.getRole())
+			.phone(request.getPhone())
+			.role(RoleEnum.STUDENT)
 			.active(true)
 			.disabled(false)
 			.timezone(TimeZone.getDefault())
@@ -80,9 +82,7 @@ public class AuthenticationService {
 		var validUserTokens = storedRedisTokenRepo.findAllValidTokenById(user.getId());
 		if (validUserTokens.isEmpty())
 			return;
-		validUserTokens.forEach(token -> {
-			token.setRevoked(true);
-		});
+		validUserTokens.forEach(token -> token.setRevoked(true));
 		storedRedisTokenRepo.saveAll(validUserTokens);
 	}
 

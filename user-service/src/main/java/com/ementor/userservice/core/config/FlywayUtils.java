@@ -1,5 +1,5 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package utils;
+package com.ementor.userservice.core.config;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.logging.Log;

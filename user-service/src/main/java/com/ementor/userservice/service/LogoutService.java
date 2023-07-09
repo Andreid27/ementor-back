@@ -1,7 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.service;
 
-import com.ementor.userservice.redis.repo.StoredRedisTokenRepo;
+import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

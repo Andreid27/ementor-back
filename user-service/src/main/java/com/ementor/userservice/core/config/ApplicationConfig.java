@@ -1,5 +1,5 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.config;
+package com.ementor.userservice.core.config;
 
 import com.ementor.userservice.repo.UsersRepo;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,6 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.dto;
 
-import com.ementor.userservice.enums.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +16,5 @@ public class RegisterRequest {
 	private String lastName;
 	private String email;
 	private String password;
-	private RoleEnum role;
+	private String phone;
 }

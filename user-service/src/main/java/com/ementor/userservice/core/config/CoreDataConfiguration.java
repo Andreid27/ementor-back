@@ -1,5 +1,5 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.config;
+package com.ementor.userservice.core.config;
 
 import com.ementor.userservice.entity.User;
 import com.zaxxer.hikari.HikariDataSource;
@@ -17,7 +17,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
-import utils.FlywayUtils;
 
 @Configuration
 @EnableJpaRepositories(

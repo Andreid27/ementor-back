@@ -1,5 +1,5 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.config;
+package com.ementor.userservice.core.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +33,9 @@ public class SecurityConfiguration {
 					"/swagger-resources/**", "/configuration/ui", "/configuration/security", "/swagger-ui/**", "/webjars/**",
 					"/user/**", "/swagger-ui.html")
 			.permitAll()
-
+			// TODO de rezolvat rolul aici
+			// .requestMatchers("/api/redisTokens/**")
+			// .hasAnyRole(String.valueOf(ADMIN))
 			.anyRequest()
 			.authenticated()
 			.and()

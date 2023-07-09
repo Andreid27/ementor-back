@@ -1,7 +1,6 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.redis.entity;
+package com.ementor.userservice.core.redis.entity;
 
-import com.ementor.userservice.service.ConstantUtils;
 import jakarta.persistence.Id;
 import java.io.Serializable;
 import java.util.UUID;
@@ -10,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
+import utils.ConstantUtils;
 
 @Data
 @Builder

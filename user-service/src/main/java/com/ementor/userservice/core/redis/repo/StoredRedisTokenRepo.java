@@ -1,7 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.redis.repo;
+package com.ementor.userservice.core.redis.repo;
 
-import com.ementor.userservice.redis.entity.StoredRedisToken;
+import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

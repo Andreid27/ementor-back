@@ -1,17 +1,21 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.redis.services;
+package com.ementor.userservice.core.redis.services;
 
-import com.ementor.userservice.redis.entity.StoredRedisToken;
-import com.ementor.userservice.redis.repo.StoredRedisTokenRepo;
+import com.ementor.userservice.core.redis.entity.StoredRedisToken;
+import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class StoredRedisTokenService {
+
+	private static final Logger log = LoggerFactory.getLogger(StoredRedisTokenService.class);
 
 	private final StoredRedisTokenRepo repo;
 
@@ -30,7 +34,7 @@ public class StoredRedisTokenService {
 		try {
 			repo.save(storedRedisToken);
 		} catch (Exception e) {
-			System.out.println("Eroare la salvarea StoredRedisToken in Redis");
+			log.error("Eroare la salvarea StoredRedisToken in Redis");
 			throw e;
 		}
 	}

@@ -1,8 +1,8 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package com.ementor.userservice.config;
+package com.ementor.userservice.core.service;
 
-import com.ementor.userservice.redis.entity.StoredRedisToken;
-import com.ementor.userservice.redis.services.StoredRedisTokenService;
+import com.ementor.userservice.core.redis.entity.StoredRedisToken;
+import com.ementor.userservice.core.redis.services.StoredRedisTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -39,7 +39,9 @@ public class JwtService {
 	}
 
 	public String generateToken(UserDetails userDetails) {
-		String token = generateToken(new HashMap<>(), userDetails);
+		HashMap<String, Object> extraClaims = new HashMap<>();
+		extraClaims.put("ROLE", userDetails.getAuthorities());
+		String token = generateToken(extraClaims, userDetails);
 		storedRedisTokenService.buildAndSaveToken(userDetails, token);
 		return token;
 	}

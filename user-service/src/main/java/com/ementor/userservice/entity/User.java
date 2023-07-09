@@ -35,6 +35,9 @@ public class User extends CommonEntity implements UserDetails {
 	@Column(name = "password")
 	private String password;
 
+	@Column(name = "phone")
+	private String phone;
+
 	private Boolean active;
 
 	private Boolean disabled;

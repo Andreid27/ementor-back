@@ -2,5 +2,5 @@
 package com.ementor.userservice.enums;
 
 public enum RoleEnum {
-	ADMIN, PROFESSOR, ROLE_STUDENT
+	ADMIN, PROFESSOR, STUDENT
 }
