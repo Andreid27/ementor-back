@@ -1,7 +1,16 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.service;
 
-public class ConstantUtils {
+//SET HERE WHEN MODIFIED
 
-	public static final String RedisHashName = "StoredRedisToken";
+public class ConstantUtils {
+	public final static String RedisHashName = "StoredRedisToken";
+
+	public final static long port = 49200;
+	public final static String localEnvUrl = "http://localhost:" + port;
+
+	public final static String productionHost = "http://api.ementor.dinca.one";
+
+	public final static String productionService = "service1";
+	public final static String productionEnvUrl = productionHost + "/" + productionService;
 }

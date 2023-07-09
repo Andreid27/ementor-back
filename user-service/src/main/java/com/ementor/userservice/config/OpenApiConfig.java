@@ -1,6 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.config;
 
+import com.ementor.userservice.service.ConstantUtils;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -13,18 +14,18 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
 	info = @Info(
-		contact = @Contact(name = "Alibou", email = "contact@aliboucoding.com", url = "https://aliboucoding.com/course"),
-		description = "OpenApi documentation for Spring Security",
-		title = "OpenApi specification - Alibou",
+		contact = @Contact(name = "Dinca Andrei", email = "andrei@dinca.one", url = "http://dinca.one/"),
+		description = "OpenApi documentation for E-mentor app",
+		title = "OpenApi specification - E-mentor App",
 		version = "1.0",
-		license = @License(name = "Licence name", url = "https://some-url.com"),
+		license = @License(name = "Toate drepturile rezervare @E-mentor app", url = "http://dinca.one/"),
 		termsOfService = "Terms of service"),
-	servers = {@Server(description = "Local ENV", url = "http://localhost:8080"),
-			@Server(description = "PROD ENV", url = "https://aliboucoding.com/course")},
-	security = {@SecurityRequirement(name = "bearerAuth")})
+	servers = {@Server(description = "Local ENV", url = ConstantUtils.localEnvUrl),
+			@Server(description = "PROD ENV", url = ConstantUtils.productionEnvUrl)},
+	security = {@SecurityRequirement(name = "Bearer Token Scheme - JWT Tokens")})
 @SecurityScheme(
-	name = "bearerAuth",
-	description = "JWT auth description",
+	name = "Bearer Token Scheme - JWT Tokens",
+	description = "JWT stored tokens",
 	scheme = "bearer",
 	type = SecuritySchemeType.HTTP,
 	bearerFormat = "JWT",
