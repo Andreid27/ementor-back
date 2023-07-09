@@ -1,21 +1,24 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.config;
 
+import com.ementor.userservice.redis.entity.StoredRedisToken;
+import com.ementor.userservice.redis.services.StoredRedisTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 	@Value("${ementor.security.jwt.secret-key}")
 	private String secretKey;
@@ -23,6 +26,8 @@ public class JwtService {
 	private long jwtExpiration;
 	@Value("${ementor.security.jwt.refresh-token.expiration}")
 	private long refreshExpiration;
+
+	private final StoredRedisTokenService storedRedisTokenService;
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -35,7 +40,9 @@ public class JwtService {
 	}
 
 	public String generateToken(UserDetails userDetails) {
-		return generateToken(new HashMap<>(), userDetails);
+		String token = generateToken(new HashMap<>(), userDetails);
+		storedRedisTokenService.buildAndSaveToken(userDetails,token);
+		return token;
 	}
 
 	public String generateToken(Map<String, Object> extraClaims,
@@ -62,13 +69,34 @@ public class JwtService {
 
 	public boolean isTokenValid(String token,
 			UserDetails userDetails) {
+		Date tokenDate = extractExpiration(token);
 		final String username = extractUsername(token);
+		boolean isUserNameSame=username.equals(userDetails.getUsername());
+		boolean isTokenExpired = isTokenExpired(tokenDate);
+		boolean isTokenLastest = isTokenLastest(userDetails,token,tokenDate);
 		// TODO here add the token validation from the redis db
-		return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+		return isTokenLastest && isUserNameSame && !isTokenExpired;
+
+
+
+
+
+
+		//TODO de testat toata logica de autentificare cu jwt si de salvare a noului token
+
+
+
+
+
+
+
+
+
+
 	}
 
-	private boolean isTokenExpired(String token) {
-		return extractExpiration(token).before(new Date());
+	private boolean isTokenExpired(Date tokenDate) {
+		return tokenDate.before(new Date());
 	}
 
 	private Date extractExpiration(String token) {
@@ -86,5 +114,26 @@ public class JwtService {
 	private Key getSignInKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes);
+	}
+
+
+	public boolean isTokenLastest(UserDetails userDetails, String token, Date tokenDate){
+		Optional<StoredRedisToken> storedRedisToken=storedRedisTokenService.getStoredRedisToken(userDetails.getUsername());
+		if(storedRedisToken.isEmpty()){
+			storedRedisTokenService.buildAndSaveToken(userDetails, token);
+			return true;
+		}
+
+		if(storedRedisToken.get().getToken().equals(token)){
+			return true;
+		}
+
+		Date storedTokenDate = extractExpiration(storedRedisToken.get().getToken());
+		if(storedTokenDate.before(tokenDate)){
+			storedRedisTokenService.buildAndSaveToken(userDetails, token);
+			return true;
+		}
+
+		return false;
 	}
 }
