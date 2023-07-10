@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
-import utils.ConstantUtils;
+import com.ementor.userservice.utils.ConstantUtils;
 
 @Data
 @Builder

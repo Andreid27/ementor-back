@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import utils.ConstantUtils;
+import com.ementor.userservice.utils.ConstantUtils;
 
 @Service
 public class RedisCleanUpService {

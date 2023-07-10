@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
-import utils.ConstantUtils;
+import com.ementor.userservice.utils.ConstantUtils;
 
 @OpenAPIDefinition(
 	info = @Info(
