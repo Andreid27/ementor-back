@@ -5,11 +5,14 @@ ARG IMAGE_TAG="0.0.2"
 LABEL tag="${IMAGE_TAG}"
  
 WORKDIR /app
- 
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+
+# Copy the project's source code into the image
+COPY . .
+
+# Define the command to run the application
 RUN ./mvnw dependency:go-offline
- 
-COPY src ./src
- 
+RUN ./mvnw clean install
+
+# Build the application using Maven
+
 CMD ["./mvnw", "spring-boot:run"]
