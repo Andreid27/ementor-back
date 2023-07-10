@@ -16,6 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.TimeZone;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +33,10 @@ public class AuthenticationService {
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	public AuthenticationResponse register(RegisterRequest request) {
+		User savedUser = null;
 		User user = User.builder()
 			.firstName(request.getFirstName())
 			.lastName(request.getLastName())
@@ -43,10 +48,21 @@ public class AuthenticationService {
 			.disabled(false)
 			.timezone(TimeZone.getDefault())
 			.build();
-		User savedUser = repository.save(user);
+		try {
+			savedUser = repository.save(user);
+		} catch (Exception e) {
+			log.info("The user could not be saved! The user email maybe already in use.");
+			return null;
+		}
 		String jwtToken = jwtService.generateToken(user);
 		String refreshToken = jwtService.generateRefreshToken(user);
-		saveUserToken(savedUser, jwtToken);
+		try {
+			saveUserToken(savedUser, jwtToken);
+		} catch (Exception e) {
+			log.error("Cannot save the user token with id: [USER-ID:{}] and token: {} to the redis.", user.getId(),
+					jwtToken);
+			return null;
+		}
 		return AuthenticationResponse.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)

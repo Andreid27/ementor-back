@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/redisTokens")
 @RequiredArgsConstructor
-public class TestController {
+public class TokenController {
 
 	private final TokenService tokenService;
 

@@ -5,6 +5,9 @@ import com.ementor.userservice.dto.AuthenticationRequest;
 import com.ementor.userservice.dto.AuthenticationResponse;
 import com.ementor.userservice.dto.RegisterRequest;
 import com.ementor.userservice.service.AuthenticationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,6 +23,10 @@ public class AuthenticationController {
 	private final AuthenticationService service;
 
 	@PostMapping("/register")
+	@Operation(summary = "Get request")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
 		return ResponseEntity.ok(service.register(request));
 	}

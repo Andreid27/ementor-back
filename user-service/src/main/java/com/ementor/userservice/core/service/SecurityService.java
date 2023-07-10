@@ -1,7 +1,10 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.core.service;
 
+import com.ementor.userservice.core.exceptions.EmentorApiError;
 import com.ementor.userservice.entity.User;
+import com.ementor.userservice.enums.RoleEnum;
+import java.util.Arrays;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,16 +18,39 @@ public class SecurityService {
 			.getAuthentication();
 	}
 
-	public boolean hasRole(String role) {
+	public boolean hasRole(RoleEnum role) throws EmentorApiError {
 		Authentication auth = getAuthentication();
-		// TODO to make for any role;
+		boolean hasRole = false;
 		if (auth != null) {
-			return auth.getAuthorities()
+			hasRole = auth.getAuthorities()
 				.stream()
 				.map(GrantedAuthority::getAuthority)
-				.anyMatch(role::equals);
+				.anyMatch(role.name()::equals);
 		}
-		return false;
+		if (!hasRole) {
+			throw new EmentorApiError("Current user: {" + getCurrentUser().getEmail() + "} does not have role: " + role);
+		}
+
+		return hasRole;
+	}
+
+	public boolean hasAnyRole(RoleEnum... allowedRoles) throws EmentorApiError {
+		Authentication auth = getAuthentication();
+		boolean hasRole = false;
+		if (auth != null) {
+			hasRole = Arrays.stream(allowedRoles)
+				.map(RoleEnum::name)
+				.anyMatch(roleName -> auth.getAuthorities()
+					.stream()
+					.map(GrantedAuthority::getAuthority)
+					.anyMatch(roleName::equals));
+		}
+		if (!hasRole) {
+			throw new EmentorApiError(
+					"Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: " + allowedRoles);
+		}
+
+		return hasRole;
 	}
 
 	public User getCurrentUser() {
