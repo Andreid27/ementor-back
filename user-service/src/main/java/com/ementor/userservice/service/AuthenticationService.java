@@ -4,10 +4,10 @@ package com.ementor.userservice.service;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.core.service.JwtService;
-import com.ementor.userservice.dto.AuthenticationRequest;
-import com.ementor.userservice.dto.AuthenticationResponseDto;
-import com.ementor.userservice.dto.RegisterRequest;
-import com.ementor.userservice.dto.UserGetDto;
+import com.ementor.userservice.dto.AuthenticationRequestDTO;
+import com.ementor.userservice.dto.AuthenticationResponseDTO;
+import com.ementor.userservice.dto.RegisterRequestDTO;
+import com.ementor.userservice.dto.UserGetDTO;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.RoleEnum;
 import com.ementor.userservice.repo.UsersRepo;
@@ -35,7 +35,7 @@ public class AuthenticationService {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public AuthenticationResponseDto register(RegisterRequest request) {
+	public AuthenticationResponseDTO register(RegisterRequestDTO request) {
 		User savedUser = null;
 		User user = User.builder()
 			.firstName(request.getFirstName())
@@ -62,13 +62,13 @@ public class AuthenticationService {
 					jwtToken);
 			return null;
 		}
-		return AuthenticationResponseDto.builder()
+		return AuthenticationResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)
 			.build();
 	}
 
-	public AuthenticationResponseDto authenticate(AuthenticationRequest request) {
+	public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
 		authenticationManager
 			.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 		User storedUser = repository.findByEmail(request.getEmail())
@@ -77,10 +77,10 @@ public class AuthenticationService {
 		String refreshToken = jwtService.generateRefreshToken(storedUser);
 		revokeAllUserTokens(storedUser);
 		saveUserToken(storedUser, jwtToken);
-		return AuthenticationResponseDto.builder()
+		return AuthenticationResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)
-			.userData(UserGetDto.builder()
+			.userData(UserGetDTO.builder()
 				.firstName(storedUser.getFirstName())
 				.lastName(storedUser.getLastName())
 				.email(storedUser.getEmail())
@@ -124,7 +124,7 @@ public class AuthenticationService {
 				var accessToken = jwtService.generateToken(user);
 				revokeAllUserTokens(user);
 				saveUserToken(user, accessToken);
-				var authResponse = AuthenticationResponseDto.builder()
+				var authResponse = AuthenticationResponseDTO.builder()
 					.accessToken(accessToken)
 					.refreshToken(refreshToken)
 					.build();

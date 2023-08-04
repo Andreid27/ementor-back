@@ -1,7 +1,6 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.dto;
 
-import com.ementor.userservice.enums.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserGetDto {
-	private String email;
+public class AuthenticationResponseDTO {
 
-	private String firstName;
+	private String accessToken;
+	private String refreshToken;
 
-	private String lastName;
-
-	private RoleEnum role;
+	private UserGetDTO userData;
 }

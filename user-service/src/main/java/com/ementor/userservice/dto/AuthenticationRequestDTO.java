@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponseDto {
+public class AuthenticationRequestDTO {
 
-	private String accessToken;
-	private String refreshToken;
-
-	private UserGetDto userData;
+	private String email;
+	String password;
 }
