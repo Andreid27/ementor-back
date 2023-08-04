@@ -6,7 +6,6 @@ import com.ementor.userservice.enums.RoleEnum;
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
-import java.util.TimeZone;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,9 +40,6 @@ public class User extends CommonEntity implements UserDetails {
 	private Boolean active;
 
 	private Boolean disabled;
-
-	private TimeZone timezone;
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "user_role")
 	private RoleEnum role;

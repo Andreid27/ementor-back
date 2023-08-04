@@ -4,9 +4,10 @@ package com.ementor.userservice.service;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.core.service.JwtService;
-import com.ementor.userservice.dto.AuthenticationRequest;
-import com.ementor.userservice.dto.AuthenticationResponse;
-import com.ementor.userservice.dto.RegisterRequest;
+import com.ementor.userservice.dto.AuthenticationRequestDTO;
+import com.ementor.userservice.dto.AuthenticationResponseDTO;
+import com.ementor.userservice.dto.RegisterRequestDTO;
+import com.ementor.userservice.dto.UserGetDTO;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.RoleEnum;
 import com.ementor.userservice.repo.UsersRepo;
@@ -14,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.TimeZone;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class AuthenticationService {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public AuthenticationResponse register(RegisterRequest request) {
+	public AuthenticationResponseDTO register(RegisterRequestDTO request) {
 		User savedUser = null;
 		User user = User.builder()
 			.firstName(request.getFirstName())
@@ -46,7 +46,6 @@ public class AuthenticationService {
 			.role(RoleEnum.STUDENT)
 			.active(true)
 			.disabled(false)
-			.timezone(TimeZone.getDefault())
 			.build();
 		try {
 			savedUser = repository.save(user);
@@ -63,24 +62,30 @@ public class AuthenticationService {
 					jwtToken);
 			return null;
 		}
-		return AuthenticationResponse.builder()
+		return AuthenticationResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)
 			.build();
 	}
 
-	public AuthenticationResponse authenticate(AuthenticationRequest request) {
+	public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
 		authenticationManager
 			.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-		User user = repository.findByEmail(request.getEmail())
+		User storedUser = repository.findByEmail(request.getEmail())
 			.orElseThrow();
-		String jwtToken = jwtService.generateToken(user);
-		String refreshToken = jwtService.generateRefreshToken(user);
-		revokeAllUserTokens(user);
-		saveUserToken(user, jwtToken);
-		return AuthenticationResponse.builder()
+		String jwtToken = jwtService.generateToken(storedUser);
+		String refreshToken = jwtService.generateRefreshToken(storedUser);
+		revokeAllUserTokens(storedUser);
+		saveUserToken(storedUser, jwtToken);
+		return AuthenticationResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)
+			.userData(UserGetDTO.builder()
+				.firstName(storedUser.getFirstName())
+				.lastName(storedUser.getLastName())
+				.email(storedUser.getEmail())
+				.role(storedUser.getRole())
+				.build())
 			.build();
 	}
 
@@ -119,7 +124,7 @@ public class AuthenticationService {
 				var accessToken = jwtService.generateToken(user);
 				revokeAllUserTokens(user);
 				saveUserToken(user, accessToken);
-				var authResponse = AuthenticationResponse.builder()
+				var authResponse = AuthenticationResponseDTO.builder()
 					.accessToken(accessToken)
 					.refreshToken(refreshToken)
 					.build();

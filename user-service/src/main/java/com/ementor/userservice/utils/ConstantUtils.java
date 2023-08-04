@@ -1,5 +1,5 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
-package utils;
+package com.ementor.userservice.utils;
 
 //SET HERE WHEN MODIFIED
 
