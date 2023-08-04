@@ -3,6 +3,7 @@ package com.ementor.userservice.core.service;
 
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.services.StoredRedisTokenService;
+import com.ementor.userservice.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -38,11 +39,12 @@ public class JwtService {
 		return claimsResolver.apply(claims);
 	}
 
-	public String generateToken(UserDetails userDetails) {
+	public String generateToken(User user) {
 		HashMap<String, Object> extraClaims = new HashMap<>();
-		extraClaims.put("ROLE", userDetails.getAuthorities());
-		String token = generateToken(extraClaims, userDetails);
-		storedRedisTokenService.buildAndSaveToken(userDetails, token);
+		extraClaims.put("ROLE", user.getRole());
+		extraClaims.put("userId", user.getId());
+		String token = generateToken(extraClaims, user);
+		storedRedisTokenService.buildAndSaveToken(user, token);
 		return token;
 	}
 
