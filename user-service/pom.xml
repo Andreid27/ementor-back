@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ementor</groupId>
-	<artifactId>user-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>user-service</name>
-	<description>user-service</description>
+	<artifactId>core-service</artifactId>
+	<version>0.0.1-beta1</version>
+	<name>core-service</name>
+	<description>core-service</description>
 	<properties>
 		<java.version>17</java.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>

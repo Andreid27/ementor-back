@@ -12,4 +12,6 @@ public interface StoredRedisTokenRepo extends CrudRepository<StoredRedisToken, S
 
 	Optional<StoredRedisToken> findByToken(String token);
 
+	Optional<StoredRedisToken> findById(UUID id);
+
 }

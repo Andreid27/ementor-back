@@ -3,11 +3,11 @@ package com.ementor.core.core.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.ementor.core.core.service.CustomAuthenticationProvider;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,10 +26,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-	private final JwtAuthenticationFilter jwtAuthFilter;
-	private final AuthenticationProvider authenticationProvider;
+	private final CustomJwtAuthenticationFilter customJwtAuthFilter;
+	private final CustomAuthenticationProvider customAuthenticationProvider;
 	private final LogoutHandler logoutHandler;
-
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf()
@@ -40,17 +39,14 @@ public class SecurityConfiguration {
 					"/swagger-resources/**", "/configuration/ui", "/configuration/security", "/swagger-ui/**", "/webjars/**",
 					"/user/**", "/swagger-ui.html")
 			.permitAll()
-			// TODO de rezolvat rolul aici
-			// .requestMatchers("/api/redisTokens/**")
-			// .hasAnyRole(String.valueOf(ADMIN))
 			.anyRequest()
 			.authenticated()
 			.and()
 			.sessionManagement()
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
-			.authenticationProvider(authenticationProvider)
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+			.authenticationProvider(customAuthenticationProvider)
+			.addFilterBefore(customJwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 			.logout()
 			.logoutUrl("/api/v1/auth/logout")
 			.addLogoutHandler(logoutHandler)

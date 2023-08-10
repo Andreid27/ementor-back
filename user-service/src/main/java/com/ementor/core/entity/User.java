@@ -1,11 +1,10 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.core.entity;
 
-import com.ementor.core.core.entity.CommonEntity;
 import com.ementor.core.enums.RoleEnum;
-import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,31 +17,34 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "users")
-public class User extends CommonEntity implements UserDetails {
+public class User implements UserDetails {
 
-	@Column(name = "email")
 	private String email;
 
-	@Column(name = "first_name")
 	private String firstName;
 
-	@Column(name = "last_name")
 	private String lastName;
 
-	@Column(name = "password")
 	private String password;
 
-	@Column(name = "phone")
 	private String phone;
 
 	private Boolean active;
 
 	private Boolean disabled;
-	@Enumerated(EnumType.STRING)
-	@Column(name = "user_role")
+
 	private RoleEnum role;
+
+	private UUID userId;
+
+	public User(
+			String email,
+			RoleEnum role,
+			UUID userId) {
+		this.email = email;
+		this.role = role;
+		this.userId = userId;
+	}
 
 	public String getEmail() {
 		return email;
