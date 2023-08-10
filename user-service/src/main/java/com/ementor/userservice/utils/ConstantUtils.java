@@ -6,7 +6,7 @@ package com.ementor.userservice.utils;
 public class ConstantUtils {
 	public static final String RedisHashName = "StoredRedisToken";
 
-	public static final long port = 49200;
+	public static final long port = 49201;
 	public static final String localEnvUrl = "http://localhost:" + port;
 
 	public static final String productionHost = "http://api.ementor.dinca.one";
