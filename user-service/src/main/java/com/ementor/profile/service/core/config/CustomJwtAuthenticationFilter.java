@@ -1,47 +1,43 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.core.config;
 
-import com.ementor.profile.service.core.redis.repo.StoredRedisTokenRepo;
+import com.ementor.profile.service.core.entity.CustomUserDetailsService;
+import com.ementor.profile.service.core.service.CustomAuthenticationProvider;
 import com.ementor.profile.service.core.service.JwtService;
+import com.ementor.profile.service.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
-	private final UserDetailsService userDetailsService;
-	private final StoredRedisTokenRepo storedRedisTokenRepo;
+	private final CustomUserDetailsService customUserDetailsService;
+
+	private final CustomAuthenticationProvider customAuthenticationProvider;
 
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request,
 			@NonNull HttpServletResponse response,
 			@NonNull FilterChain filterChain) throws ServletException,
 			IOException {
-		if (request.getServletPath()
-			.contains("/api/v1/auth")) {
-			filterChain.doFilter(request, response);
-			return;
-		}
 		final String authHeader = request.getHeader("Authorization");
 		final String jwt;
 		final String userEmail;
-		final UUID userId;
+
+		// logic of login without user_service databases. Case: 1. only with
+		// userId and email
 		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
 			return;
@@ -51,10 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		if (userEmail != null && SecurityContextHolder.getContext()
 			.getAuthentication() == null) {
-			UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-			if (jwtService.isTokenValid(jwt, userDetails)) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-						userDetails.getAuthorities());
+			User user = this.customUserDetailsService.loadUserByUsername(jwt);
+			if (jwtService.isTokenValid(jwt, user) && Boolean.TRUE.equals(customAuthenticationProvider.checkIfAllMatch(user, userEmail))) {
+				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null,
+						user.getAuthorities());
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext()
 					.setAuthentication(authToken);
@@ -62,4 +58,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 		filterChain.doFilter(request, response);
 	}
+
 }

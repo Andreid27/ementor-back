@@ -1,11 +1,10 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.entity;
 
-import com.ementor.profile.service.core.entity.CommonEntity;
 import com.ementor.profile.service.enums.RoleEnum;
-import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +34,17 @@ public class User implements UserDetails {
 	private Boolean disabled;
 
 	private RoleEnum role;
+
+	private UUID userId;
+
+	public User(
+			String email,
+			RoleEnum role,
+			UUID userId) {
+		this.email = email;
+		this.role = role;
+		this.userId = userId;
+	}
 
 	public String getEmail() {
 		return email;
