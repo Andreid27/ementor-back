@@ -11,10 +11,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication(exclude = {FlywayAutoConfiguration.class})
 @EnableScheduling
-public class UserServiceApplication {
+public class CoreServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserServiceApplication.class, args);
+		SpringApplication.run(CoreServiceApplication.class, args);
 	}
 
 	@Bean
