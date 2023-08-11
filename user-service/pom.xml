@@ -10,8 +10,8 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ementor</groupId>
-	<artifactId>user-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>profile-service</artifactId>
+	<version>0.0.1-beta1</version>
 	<name>user-service</name>
 	<description>user-service</description>
 	<properties>

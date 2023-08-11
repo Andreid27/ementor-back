@@ -18,7 +18,7 @@ begin
        modified timestamptz null,
        created_by uuid not null,
        modified_by uuid null,
-       constraint office_addresses_pkey primary key (id),
+       constraint addresses_pkey primary key (id),
        constraint county_fk foreign key (county_id) references locations (id)
     );
 
@@ -47,8 +47,8 @@ begin
          creation timestamptz not null,
          modified timestamptz null,
          expires timestamptz null,
-         constraint student_pkey primary key (id),
-         constraint address_fk foreign key (address_id) references addresses (id)
+         constraint professor_pkey primary key (id),
+         constraint address_fk1 foreign key (address_id) references addresses (id)
     );
 
     drop table if exists student_profile;
@@ -65,7 +65,7 @@ begin
 		modified timestamptz null,
 		expires timestamptz null,
 		constraint student_pkey primary key (id),
-	    constraint address_fk foreign key (address_id) references addresses (id)
+	    constraint address_fk2 foreign key (address_id) references addresses (id)
 	);
 
 END

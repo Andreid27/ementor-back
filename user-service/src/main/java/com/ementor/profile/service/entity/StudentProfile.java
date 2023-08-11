@@ -34,7 +34,7 @@ public class StudentProfile extends CommonEntity {
 	private String school;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "address_id")
+	@JoinColumn(name = "professor_id")
 	private ProfessorProfile professorProfile;
 
 	@ManyToOne(fetch = FetchType.LAZY)
