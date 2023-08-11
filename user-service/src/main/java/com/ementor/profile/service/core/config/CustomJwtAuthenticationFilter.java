@@ -48,7 +48,8 @@ public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
 		if (userEmail != null && SecurityContextHolder.getContext()
 			.getAuthentication() == null) {
 			User user = this.customUserDetailsService.loadUserByUsername(jwt);
-			if (jwtService.isTokenValid(jwt, user) && Boolean.TRUE.equals(customAuthenticationProvider.checkIfAllMatch(user, userEmail))) {
+			if (jwtService.isTokenValid(jwt, user)
+					&& Boolean.TRUE.equals(customAuthenticationProvider.checkIfAllMatch(user, userEmail))) {
 				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null,
 						user.getAuthorities());
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
