@@ -26,9 +26,9 @@ begin
 	create table images (
 		id uuid not null default gen_random_uuid (),
         file_name varchar(80) not null,
-        file_type varchar(10) not null,
+        file_type varchar(100) not null,
         file_size int4 not null,
-        file_data bytea not null,
+        file_data oid not null,
         resolution varchar(30) null,
 		creation timestamptz not null,
 		modified timestamptz null,

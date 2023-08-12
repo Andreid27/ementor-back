@@ -4,7 +4,9 @@ package com.ementor.profile.service.core.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Data;
 
+@Data
 @MappedSuperclass
 public class File extends CommonEntity {
 	@Column(name = "file_name")
@@ -13,14 +15,8 @@ public class File extends CommonEntity {
 	@Column(name = "file_type")
 	private String fileType;
 
-	@Column(name = "size")
+	@Column(name = "file_size")
 	private long size;
-
-	@Column(name = "uuid")
-	private String uuid;
-
-	@Column(name = "system_name")
-	private String systemName;
 
 	@Lob
 	@Column(name = "file_data")
