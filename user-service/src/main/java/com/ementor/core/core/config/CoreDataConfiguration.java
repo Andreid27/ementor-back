@@ -18,9 +18,11 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import static com.ementor.core.utils.ConstantUtils.SERVICE_NAME;
+
 @Configuration
 @EnableJpaRepositories(
-	basePackages = "com.ementor.core.repo",
+	basePackages = "com.ementor."+ SERVICE_NAME +".repo",
 	entityManagerFactoryRef = "coreEntityManagerFactory",
 	transactionManagerRef = "coreTransactionManager")
 public class CoreDataConfiguration {
