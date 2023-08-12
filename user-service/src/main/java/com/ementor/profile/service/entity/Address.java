@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.io.Serial;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "office_addresses")
+@Table(name = "addresses")
 public class Address extends CommonEntity {
 	@Serial
 	private static final long serialVersionUID = 6565579143327517074L;
@@ -33,7 +34,7 @@ public class Address extends CommonEntity {
 	@Size(min = 1, max = 200)
 	private String street;
 
-	@Column(name = "no", length = 10)
+	@Column(name = "number", length = 10)
 	@NotBlank(message = "Number value cannot be null or blank")
 	@Size(min = 1, max = 10)
 	private String number;
@@ -47,4 +48,8 @@ public class Address extends CommonEntity {
 
 	@Column(name = "apartment")
 	private Integer apartment;
+
+	@Column(name = "created_by")
+	private UUID createdBy;
+
 }

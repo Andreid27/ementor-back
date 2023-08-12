@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "specialities")
+@Table(name = "universities_specialities")
 public class UniversitySpeciality extends CommonEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -28,5 +28,5 @@ public class UniversitySpeciality extends CommonEntity {
 	private short difficulty;
 
 	@Column(name = "about")
-	private short about;
+	private String about;
 }

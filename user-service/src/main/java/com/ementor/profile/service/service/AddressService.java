@@ -35,7 +35,7 @@ public class AddressService {
 		Location location = locationService.getLocation(dto.getCountyId());
 
 		Address address = new Address(location, dto.getCity(), dto.getStreet(), dto.getNumber(), dto.getBlock(),
-				dto.getStaircase(), dto.getApartment());
+				dto.getStaircase(), dto.getApartment(), currentUserId);
 
 		return addressesRepo.save(address);
 	}

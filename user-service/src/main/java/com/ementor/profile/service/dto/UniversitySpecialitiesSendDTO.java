@@ -2,6 +2,7 @@
 package com.ementor.profile.service.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,6 @@ public class UniversitySpecialitiesSendDTO {
 
 	@NotNull(message = "Difficulty field is required")
 	private short difficulty;
-
-	private short about;
+	@Size(max = 2000, message = "About must be maximum 2000 characters!")
+	private String about;
 }
