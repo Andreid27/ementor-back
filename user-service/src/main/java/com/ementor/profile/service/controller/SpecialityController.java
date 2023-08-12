@@ -46,14 +46,13 @@ public class SpecialityController {
 		service.createSpeciality(dto);
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping("/update")
 	@Operation(summary = "Update a speciality.")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public void register(@RequestBody @Valid SpecialityDTO dto,
-			@PathVariable UUID id) {
-		service.updateSpeciality(dto, id);
+	public void register(@RequestBody @Valid SpecialityDTO dto) {
+		service.updateSpeciality(dto);
 	}
 
 	@DeleteMapping("/{id}")

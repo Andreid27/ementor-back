@@ -78,20 +78,19 @@ public class SpecialityService {
 		specialitiesRepo.save(speciality);
 		log.info("[USER-ID: {}] Created  speciality {} and id {}.", currentUserId, speciality.getName(), speciality.getId());
 	}
-	public void updateSpeciality(SpecialityDTO dto,
-			UUID specialityId) {
+	public void updateSpeciality(SpecialityDTO dto) {
 		securityService.hasAnyRole(RoleEnum.ADMIN);
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
 
-		log.info("[USER-ID: {}] Updating  speciality with id {}.", currentUserId, specialityId);
+		log.info("[USER-ID: {}] Updating  speciality with id {}.", currentUserId, dto.getId());
 
 		Speciality speciality = Speciality.builder()
 			.name(dto.getName())
 			.studyYears(dto.getStudyYears())
 			.about(dto.getAbout())
 			.build();
-		speciality.setId(specialityId);
+		speciality.setId(dto.getId());
 
 		specialitiesRepo.save(speciality);
 		log.info("[USER-ID: {}] Updated  speciality {} and id {}.", currentUserId, speciality.getName(), speciality.getId());
