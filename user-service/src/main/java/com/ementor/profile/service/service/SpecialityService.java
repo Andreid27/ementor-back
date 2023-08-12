@@ -3,10 +3,12 @@ package com.ementor.profile.service.service;
 
 import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
-import com.ementor.profile.service.dto.SpecialitySendDTO;
+import com.ementor.profile.service.dto.SpecialityDTO;
 import com.ementor.profile.service.entity.Speciality;
 import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.SpecialitiesRepo;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,7 +24,45 @@ public class SpecialityService {
 
 	private final SpecialitiesRepo specialitiesRepo;
 
-	public void createSpeciality(SpecialitySendDTO dto) {
+	public List<SpecialityDTO> getAll() {
+		securityService.hasAnyRole(RoleEnum.ADMIN);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Getting all specialities.", currentUserId);
+
+		List<Speciality> specialities = specialitiesRepo.findAll();
+		List<SpecialityDTO> dtoList = new LinkedList<>();
+		specialities.forEach(speciality -> dtoList.add(buildSpecialityDto(speciality)));
+
+		log.info("[USER-ID: {}] Got all specialities.", currentUserId);
+
+		return dtoList;
+	}
+	public SpecialityDTO get(UUID specialityId) {
+		securityService.hasAnyRole(RoleEnum.ADMIN);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Getting speciality with id {}.", currentUserId,specialityId);
+
+		SpecialityDTO dto = buildSpecialityDto(getSpeciality(specialityId));
+
+		log.info("[USER-ID: {}] Got speciality with id {}.", currentUserId, specialityId);
+
+		return dto;
+	}
+
+	private SpecialityDTO buildSpecialityDto(Speciality speciality) {
+		return SpecialityDTO.builder()
+			.id(speciality.getId())
+			.name(speciality.getName())
+			.studyYears(speciality.getStudyYears())
+			.about(speciality.getAbout())
+			.build();
+	}
+
+	public void createSpeciality(SpecialityDTO dto) {
 		securityService.hasAnyRole(RoleEnum.ADMIN);
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
