@@ -13,12 +13,22 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UniversitySpecialitiesSendDTO {
+public class UniversitySpecialitiesDTO {
+
+	private UUID id;
+
+	private String name;
+
+	private short studyYears;
+
+	private String specialityAbout;
+
 	@NotNull(message = "Speciality/Speciality id field is required")
-	private UUID speciality;
+	private UUID specialityId;
 
 	@NotNull(message = "Difficulty field is required")
 	private short difficulty;
+
 	@Size(max = 2000, message = "About must be maximum 2000 characters!")
 	private String about;
 }

@@ -14,10 +14,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddressSendDTO {
+public class AddressDTO {
+
+	private UUID id;
 
 	@NotNull(message = "Address county field is required")
 	private UUID countyId;
+
+	private String countyValue;
 
 	@NotBlank(message = "Address city field is required")
 	@Size(min = 1, max = 100, message = "Address city must contain between 1 and 100 characters!")

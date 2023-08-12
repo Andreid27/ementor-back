@@ -2,7 +2,7 @@
 package com.ementor.profile.service.service;
 
 import com.ementor.profile.service.core.service.SecurityService;
-import com.ementor.profile.service.dto.AddressSendDTO;
+import com.ementor.profile.service.dto.AddressDTO;
 import com.ementor.profile.service.entity.Address;
 import com.ementor.profile.service.entity.Location;
 import com.ementor.profile.service.enums.RoleEnum;
@@ -25,7 +25,7 @@ public class AddressService {
 
 	private final AddressesRepo addressesRepo;
 
-	public Address createAddress(AddressSendDTO dto) {
+	public Address createAddress(AddressDTO dto) {
 		securityService.hasAnyRole(RoleEnum.ADMIN);
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
@@ -38,5 +38,21 @@ public class AddressService {
 				dto.getStaircase(), dto.getApartment(), currentUserId);
 
 		return addressesRepo.save(address);
+	}
+
+	public AddressDTO buildAddressDto(Address address) {
+		return AddressDTO.builder()
+			.id(address.getId())
+			.countyId(address.getCounty()
+				.getId())
+			.countyValue(address.getCounty()
+				.getName())
+			.city(address.getCity())
+			.street(address.getStreet())
+			.number(address.getNumber())
+			.block(address.getBlock())
+			.staircase(address.getStaircase())
+			.apartment(address.getApartment())
+			.build();
 	}
 }

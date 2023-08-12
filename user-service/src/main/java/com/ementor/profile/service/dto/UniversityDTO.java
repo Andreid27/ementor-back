@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,17 +16,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UniversitySendDTO {
+public class UniversityDTO {
+
+	private UUID id;
+
 	@NotBlank(message = "Name is field required")
 	@Size(min = 2, max = 50, message = "name must contain between 2 and 50 characters!")
 	private String name;
 
 	@Valid
-	private AddressSendDTO address;
+	private AddressDTO address;
 
 	private String phone;
 
 	private ExamBookEnum examBook;
 
-	private List<UniversitySpecialitiesSendDTO> specialities;
+	private List<UniversitySpecialitiesDTO> specialities;
 }

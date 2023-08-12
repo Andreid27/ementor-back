@@ -1,8 +1,10 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.service;
 
+import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
-import com.ementor.profile.service.dto.UniversitySendDTO;
+import com.ementor.profile.service.dto.UniversityDTO;
+import com.ementor.profile.service.dto.UniversitySpecialitiesDTO;
 import com.ementor.profile.service.entity.Speciality;
 import com.ementor.profile.service.entity.University;
 import com.ementor.profile.service.entity.UniversitySpeciality;
@@ -32,7 +34,66 @@ public class UniversityService {
 
 	private final UniversitySpecialitiesRepo universitySpecialitiesRepo;
 
-	public void createUniversity(UniversitySendDTO dto) {
+	public List<UniversityDTO> getAll() {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Getting all universities.", currentUserId);
+
+		List<University> universities = universitiesRepo.findAll();
+		List<UniversityDTO> dtoList = new LinkedList<>();
+		universities.forEach(speciality -> dtoList.add(buildUniversityDto(speciality)));
+
+		log.info("[USER-ID: {}] Got all universities.", currentUserId);
+
+		return dtoList;
+
+	}
+	public UniversityDTO get(UUID id) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Getting university.", currentUserId);
+
+		University university = getUniversity(id);
+
+		log.info("[USER-ID: {}] Got university.", currentUserId);
+
+		return buildUniversityDto(university);
+
+	}
+
+	private UniversityDTO buildUniversityDto(University university) {
+		return UniversityDTO.builder()
+			.id(university.getId())
+			.name(university.getName())
+			.address(addressService.buildAddressDto(university.getAddress()))
+			.phone(university.getPhone())
+			.examBook(university.getExamBook())
+			.specialities(buildUniversitySpecialitiesDTO(university))
+			.build();
+	}
+
+	private List<UniversitySpecialitiesDTO> buildUniversitySpecialitiesDTO(University university) {
+		List<UniversitySpecialitiesDTO> universitySpecialitiesDTOS = new LinkedList<>();
+		university.getSpecialities()
+			.forEach(universitySpeciality -> universitySpecialitiesDTOS.add(UniversitySpecialitiesDTO.builder()
+				.id(universitySpeciality.getId())
+				.name(universitySpeciality.getSpeciality()
+					.getName())
+				.studyYears(universitySpeciality.getSpeciality()
+					.getStudyYears())
+				.specialityAbout(universitySpeciality.getSpeciality()
+					.getAbout())
+				.specialityId(universitySpeciality.getSpeciality()
+					.getId())
+				.difficulty(universitySpeciality.getDifficulty())
+				.about(universitySpeciality.getAbout())
+				.build()));
+		return universitySpecialitiesDTOS;
+	}
+
+	public void createUniversity(UniversityDTO dto) {
 		securityService.hasAnyRole(RoleEnum.ADMIN);
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
@@ -47,7 +108,7 @@ public class UniversityService {
 	}
 
 	private University saveUniversity(University university,
-			UniversitySendDTO dto) {
+			UniversityDTO dto) {
 		university.setName(dto.getName());
 		university.setAddress(addressService.createAddress(dto.getAddress()));
 		university.setPhone(dto.getPhone());
@@ -56,16 +117,23 @@ public class UniversityService {
 	}
 
 	private void saveUniversitySpecialities(University university,
-			UniversitySendDTO dto) {
+			UniversityDTO dto) {
 		List<UniversitySpeciality> universitySpecialityList = new LinkedList<>();
 		dto.getSpecialities()
 			.forEach(universitySpecialitiesSendDTO -> {
-				Speciality speciality = specialityService.getSpeciality(universitySpecialitiesSendDTO.getSpeciality());
+				Speciality speciality = specialityService.getSpeciality(universitySpecialitiesSendDTO.getSpecialityId());
 				UniversitySpeciality universitySpeciality = new UniversitySpeciality(university, speciality,
 						universitySpecialitiesSendDTO.getDifficulty(), universitySpecialitiesSendDTO.getAbout());
 				universitySpecialityList.add(universitySpeciality);
 			});
 
 		universitySpecialitiesRepo.saveAll(universitySpecialityList);
+	}
+
+
+
+	public University getUniversity(final UUID universityId) {
+		return universitiesRepo.findById(universityId)
+			.orElseThrow(() -> new EmentorApiError("Speciality not found"));
 	}
 }
