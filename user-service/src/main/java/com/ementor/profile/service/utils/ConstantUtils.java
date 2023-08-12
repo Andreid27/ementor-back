@@ -4,10 +4,11 @@ package com.ementor.profile.service.utils;
 //SET HERE WHEN MODIFIED
 
 public class ConstantUtils {
-	private ConstantUtils(){}
+	private ConstantUtils() {
+	}
 	public static final String REDIS_HASH_NAME = "StoredRedisToken";
 
-	//what is after com.ementor.
+	// what is after com.ementor.
 	public static final String SERVICE_NAME = "profile.service";
 
 	public static final long PORT = 49202;

@@ -103,6 +103,7 @@ begin
         desired_exam_date timestamptz not null,
         desired_university_speciality_id uuid not null,
         school varchar(80) not null,
+        school_grade float4 null,
         address_id uuid not null,
         professor_id uuid null,
 		creation timestamptz not null,

@@ -35,6 +35,9 @@ public class StudentProfile extends CommonEntity {
 	@Column(name = "school")
 	private String school;
 
+	@Column(name = "school_grade")
+	private float schoolGrade;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "professor_id")
 	private ProfessorProfile professorProfile;
