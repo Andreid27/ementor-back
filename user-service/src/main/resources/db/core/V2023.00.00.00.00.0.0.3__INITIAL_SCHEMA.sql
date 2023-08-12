@@ -36,28 +36,72 @@ begin
 		constraint images_pkey primary key (id)
 	);
 
+    drop table if exists universities;
+    create table universities (
+        id uuid not null default gen_random_uuid (),
+        name varchar(80) not null,
+        address_id uuid not null,
+        phone varchar(15) null,
+        exam_book varchar(50) null,
+        creation timestamptz not null,
+        modified timestamptz null,
+        expires timestamptz null,
+        constraint university_pkey primary key (id),
+        constraint address_fk3 foreign key (address_id) references addresses (id)
+    );
+
+
+    drop table if exists specialities;
+    create table specialities (
+      id uuid not null default gen_random_uuid (),
+      name varchar(80) not null,
+      study_years int2 not null,
+      about varchar(1000) null,
+      creation timestamptz not null,
+      modified timestamptz null,
+      expires timestamptz null,
+      constraint speciality_pkey primary key (id)
+    );
+
+    drop table if exists universities_specialities;
+    create table universities_specialities (
+      id uuid not null default gen_random_uuid (),
+      university_id uuid not null,
+      speciality_id uuid not null,
+      difficulty int2 not null,
+      about varchar(2000) null,
+      creation timestamptz not null,
+      modified timestamptz null,
+      expires timestamptz null,
+      constraint university_speciality_pkey primary key (id),
+      constraint university_fk foreign key (university_id) references universities (id),
+      constraint speciality_fk foreign key (speciality_id) references specialities (id)
+    );
+
     drop table if exists professor_profile;
     create table professor_profile (
          id uuid not null default gen_random_uuid (),
          user_id uuid not null,
          picture uuid null,
-         university varchar(80) not null,
-         full_name varchar(80) not null,
+         university_speciality_id uuid not null,
+         full_name varchar(80) null,
+         about varchar(3000) null,
          address_id uuid not null,
          creation timestamptz not null,
          modified timestamptz null,
          expires timestamptz null,
          constraint professor_pkey primary key (id),
-         constraint address_fk1 foreign key (address_id) references addresses (id)
+         constraint address_fk1 foreign key (address_id) references addresses (id),
+         constraint university_speciality_fk foreign key (university_speciality_id) references universities_specialities (id)
     );
 
-    drop table if exists student_profile;
-	create table student_profile (
+    drop table if exists student_profiles;
+	create table student_profiles (
 		id uuid not null default gen_random_uuid (),
         user_id uuid not null,
         picture uuid null,
         desired_exam_date timestamptz not null,
-        desired_university varchar(80) not null,
+        desired_university_speciality_id uuid not null,
         school varchar(80) not null,
         address_id uuid not null,
         professor_id uuid null,
@@ -65,7 +109,8 @@ begin
 		modified timestamptz null,
 		expires timestamptz null,
 		constraint student_pkey primary key (id),
-	    constraint address_fk2 foreign key (address_id) references addresses (id)
+	    constraint address_fk2 foreign key (address_id) references addresses (id),
+	    constraint university_speciality_fk foreign key (desired_university_speciality_id) references universities_specialities (id)
 	);
 
 END

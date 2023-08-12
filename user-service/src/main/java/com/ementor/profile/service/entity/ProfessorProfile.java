@@ -5,12 +5,14 @@ import com.ementor.profile.service.core.entity.CommonEntity;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "professor_profile")
 public class ProfessorProfile extends CommonEntity {
@@ -22,11 +24,15 @@ public class ProfessorProfile extends CommonEntity {
 	@JoinColumn(name = "picture")
 	private Image picture;
 
-	@Column(name = "university")
-	private String university;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "university_speciality_id")
+	private UniversitySpeciality universitySpeciality;
 
 	@Column(name = "full_name")
 	private String fullName;
+
+	@Column(name = "about")
+	private String about;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "address_id")
