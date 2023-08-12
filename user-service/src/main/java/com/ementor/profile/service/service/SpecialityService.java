@@ -44,7 +44,7 @@ public class SpecialityService {
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
 
-		log.info("[USER-ID: {}] Getting speciality with id {}.", currentUserId,specialityId);
+		log.info("[USER-ID: {}] Getting speciality with id {}.", currentUserId, specialityId);
 
 		SpecialityDTO dto = buildSpecialityDto(getSpeciality(specialityId));
 
@@ -77,6 +77,39 @@ public class SpecialityService {
 
 		specialitiesRepo.save(speciality);
 		log.info("[USER-ID: {}] Created  speciality {} and id {}.", currentUserId, speciality.getName(), speciality.getId());
+	}
+	public void updateSpeciality(SpecialityDTO dto,
+			UUID specialityId) {
+		securityService.hasAnyRole(RoleEnum.ADMIN);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Updating  speciality with id {}.", currentUserId, specialityId);
+
+		Speciality speciality = Speciality.builder()
+			.name(dto.getName())
+			.studyYears(dto.getStudyYears())
+			.about(dto.getAbout())
+			.build();
+		speciality.setId(specialityId);
+
+		specialitiesRepo.save(speciality);
+		log.info("[USER-ID: {}] Updated  speciality {} and id {}.", currentUserId, speciality.getName(), speciality.getId());
+	}
+
+	public void deleteSpeciality(UUID specialityId) {
+		securityService.hasAnyRole(RoleEnum.ADMIN);
+
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Deleting  speciality with id {}.", currentUserId, specialityId);
+
+		Speciality speciality = getSpeciality(specialityId);
+		specialitiesRepo.delete(speciality);
+
+		log.info("[USER-ID: {}] Deleted  speciality with id {}.", currentUserId, specialityId);
+
 	}
 
 	public Speciality getSpeciality(final UUID locationId) {
