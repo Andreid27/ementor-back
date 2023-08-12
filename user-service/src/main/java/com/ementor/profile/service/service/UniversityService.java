@@ -110,7 +110,13 @@ public class UniversityService {
 	private University saveUniversity(University university,
 			UniversityDTO dto) {
 		university.setName(dto.getName());
-		university.setAddress(addressService.createAddress(dto.getAddress()));
+		if (dto.getAddress()
+			.getId() != null) {
+			university.setAddress(addressService.updateAddress(dto.getAddress()));
+		} else {
+			university.setAddress(addressService.createAddress(dto.getAddress()));
+
+		}
 		university.setPhone(dto.getPhone());
 		university.setExamBook(dto.getExamBook());
 		return universitiesRepo.save(university);
@@ -130,7 +136,41 @@ public class UniversityService {
 		universitySpecialitiesRepo.saveAll(universitySpecialityList);
 	}
 
+	public void updateUniversity(UniversityDTO dto) {
+		securityService.hasAnyRole(RoleEnum.ADMIN);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
 
+		log.info("[USER-ID: {}] Updating  university.", currentUserId);
+		University university = getUniversity(dto.getId());
+
+		university = saveUniversity(university, dto);
+		updateUniversitySpecialities(university, dto);
+
+		log.info("[USER-ID: {}] Updated  university.", currentUserId);
+	}
+
+	private void updateUniversitySpecialities(University university,
+			UniversityDTO dto) {
+		universitySpecialitiesRepo.deleteAll(universitySpecialitiesRepo.findAllByUniversityId(university.getId()));
+		saveUniversitySpecialities(university, dto);
+	}
+
+	public void deleteUniversity(UUID universityId) {
+		securityService.hasAnyRole(RoleEnum.ADMIN);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Deleting  university.", currentUserId);
+		University university = getUniversity(universityId);
+		universitySpecialitiesRepo.deleteAll(universitySpecialitiesRepo.findAllByUniversityId(university.getId()));
+		universitiesRepo.deleteById(universityId);
+		addressService.deleteAddress(university.getAddress()
+			.getId());
+
+		log.info("[USER-ID: {}] Deleted  university.", currentUserId);
+
+	}
 
 	public University getUniversity(final UUID universityId) {
 		return universitiesRepo.findById(universityId)

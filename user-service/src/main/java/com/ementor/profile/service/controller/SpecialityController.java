@@ -46,7 +46,7 @@ public class SpecialityController {
 		service.createSpeciality(dto);
 	}
 
-	@PutMapping("/update/{id}")
+	@PutMapping("/{id}")
 	@Operation(summary = "Update a speciality.")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
@@ -56,7 +56,7 @@ public class SpecialityController {
 		service.updateSpeciality(dto, id);
 	}
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/{id}")
 	@Operation(summary = "Delete a speciality by ID.")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "204", description = "Request successful"),

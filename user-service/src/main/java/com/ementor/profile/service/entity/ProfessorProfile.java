@@ -25,8 +25,12 @@ public class ProfessorProfile extends CommonEntity {
 	private Image picture;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "university_speciality_id")
-	private UniversitySpeciality universitySpeciality;
+	@JoinColumn(name = "university_id")
+	private University university;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "speciality_id")
+	private Speciality speciality;
 
 	@Column(name = "full_name")
 	private String fullName;

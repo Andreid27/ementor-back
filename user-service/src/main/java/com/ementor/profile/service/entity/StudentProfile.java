@@ -29,8 +29,12 @@ public class StudentProfile extends CommonEntity {
 	protected OffsetDateTime desiredExamDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "desired_university_speciality_id")
-	private UniversitySpeciality desiredUniversitySpeciality;
+	@JoinColumn(name = "desired_university_id")
+	private University desiredUniversity;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "desired_speciality_id")
+	private Speciality desiredSpeciality;
 
 	@Column(name = "school")
 	private String school;

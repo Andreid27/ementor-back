@@ -41,8 +41,29 @@ public class UniversityController {
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public void register(@RequestBody @Valid UniversityDTO dto) {
+	public void create(@RequestBody @Valid UniversityDTO dto) {
 		service.createUniversity(dto);
+	}
+
+	@PutMapping("/update")
+	@Operation(summary = "Create a new university.")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public void update(@RequestBody @Valid UniversityDTO dto) {
+		service.updateUniversity(dto);
+	}
+
+	@DeleteMapping("/{id}")
+	@Operation(summary = "Delete a university by ID.")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "204", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request"),
+				@ApiResponse(responseCode = "404", description = "Speciality not found")})
+	public ResponseEntity<Void> delete(@PathVariable UUID id) {
+		service.deleteUniversity(id);
+		return ResponseEntity.noContent()
+			.build();
 	}
 
 }

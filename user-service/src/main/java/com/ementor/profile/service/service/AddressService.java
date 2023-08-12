@@ -1,11 +1,11 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.service;
 
+import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.dto.AddressDTO;
 import com.ementor.profile.service.entity.Address;
 import com.ementor.profile.service.entity.Location;
-import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.AddressesRepo;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,6 @@ public class AddressService {
 	private final AddressesRepo addressesRepo;
 
 	public Address createAddress(AddressDTO dto) {
-		securityService.hasAnyRole(RoleEnum.ADMIN);
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
 
@@ -37,7 +36,41 @@ public class AddressService {
 		Address address = new Address(location, dto.getCity(), dto.getStreet(), dto.getNumber(), dto.getBlock(),
 				dto.getStaircase(), dto.getApartment(), currentUserId);
 
+		log.info("[USER-ID: {}] Created  address.", currentUserId);
+
 		return addressesRepo.save(address);
+	}
+
+	public Address updateAddress(AddressDTO dto) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Updating  address.", currentUserId);
+
+		Location county = locationService.getLocation(dto.getCountyId());
+		Address address = getAddress(dto.getId());
+		address.setCounty(county);
+		address.setCity(dto.getCity());
+		address.setStreet(dto.getStreet());
+		address.setNumber(dto.getNumber());
+		address.setBlock(dto.getBlock());
+		address.setStaircase(dto.getStaircase());
+		address.setApartment(dto.getApartment());
+
+		log.info("[USER-ID: {}] Updated  address.", currentUserId);
+
+		return addressesRepo.save(address);
+	}
+
+	public void deleteAddress(UUID addressId) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Deleting  address.", currentUserId);
+
+		addressesRepo.deleteById(addressId);
+
+		log.info("[USER-ID: {}] Deleted  address.", currentUserId);
 	}
 
 	public AddressDTO buildAddressDto(Address address) {
@@ -54,5 +87,10 @@ public class AddressService {
 			.staircase(address.getStaircase())
 			.apartment(address.getApartment())
 			.build();
+	}
+
+	public Address getAddress(UUID addressId) {
+		return addressesRepo.findById(addressId)
+			.orElseThrow(() -> new EmentorApiError("Address not found"));
 	}
 }

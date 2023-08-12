@@ -74,8 +74,8 @@ begin
       modified timestamptz null,
       expires timestamptz null,
       constraint university_speciality_pkey primary key (id),
-      constraint university_fk foreign key (university_id) references universities (id),
-      constraint speciality_fk foreign key (speciality_id) references specialities (id)
+      constraint university_fk1 foreign key (university_id) references universities (id),
+      constraint speciality_fk1 foreign key (speciality_id) references specialities (id)
     );
 
     drop table if exists professor_profile;
@@ -83,7 +83,8 @@ begin
          id uuid not null default gen_random_uuid (),
          user_id uuid not null,
          picture uuid null,
-         university_speciality_id uuid not null,
+         university_id uuid not null,
+         speciality_id uuid not null,
          full_name varchar(80) null,
          about varchar(3000) null,
          address_id uuid not null,
@@ -92,7 +93,8 @@ begin
          expires timestamptz null,
          constraint professor_pkey primary key (id),
          constraint address_fk1 foreign key (address_id) references addresses (id),
-         constraint university_speciality_fk foreign key (university_speciality_id) references universities_specialities (id)
+         constraint university_fk2 foreign key (university_id) references universities (id),
+         constraint speciality_fk2 foreign key (speciality_id) references specialities (id)
     );
 
     drop table if exists student_profiles;
@@ -101,7 +103,8 @@ begin
         user_id uuid not null,
         picture uuid null,
         desired_exam_date timestamptz not null,
-        desired_university_speciality_id uuid not null,
+        desired_university_id uuid not null,
+        desired_speciality_id uuid not null,
         school varchar(80) not null,
         school_grade float4 null,
         address_id uuid not null,
@@ -111,7 +114,8 @@ begin
 		expires timestamptz null,
 		constraint student_pkey primary key (id),
 	    constraint address_fk2 foreign key (address_id) references addresses (id),
-	    constraint university_speciality_fk foreign key (desired_university_speciality_id) references universities_specialities (id)
+        constraint university_fk3 foreign key (desired_university_id) references universities (id),
+        constraint speciality_fk3 foreign key (desired_speciality_id) references specialities (id)
 	);
 
 END
