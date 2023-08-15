@@ -10,6 +10,11 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,8 +49,23 @@ public class ImageService {
 		log.info("[USER-ID: {}] Saved image.", currentUserId);
 	}
 
-	public Image getImageByName(UUID id) throws Exception {
-		Image image = imagesRepo.findById(id).get();
-		return image;
+	public ResponseEntity<Resource> download(final UUID fileId) {
+		final UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+		log.info("[USER: {}] Downloading image file with id {}...", currentUserId, fileId);
+
+		Image image = getImageById(fileId);
+
+		log.info("[USER: {}] Downloaded image file with id {}.", currentUserId, fileId);
+
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(image.getFileType()))
+			.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName() + "\"")
+			.body(new ByteArrayResource(image.getFileData()));
+	}
+
+	public Image getImageById(UUID id) {
+		return imagesRepo.findById(id)
+			.orElseThrow(() -> new EmentorApiError("Image not found"));
 	}
 }
