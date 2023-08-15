@@ -5,7 +5,8 @@ package com.ementor.core.utils;
 
 public class ConstantUtils {
 
-	private ConstantUtils(){}
+	private ConstantUtils() {
+	}
 
 	public static final String REDIS_HASH_NAME = "StoredRedisToken";
 

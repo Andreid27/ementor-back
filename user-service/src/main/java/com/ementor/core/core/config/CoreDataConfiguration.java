@@ -1,6 +1,8 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.core.core.config;
 
+import static com.ementor.core.utils.ConstantUtils.SERVICE_NAME;
+
 import com.ementor.core.entity.User;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.Objects;
@@ -18,11 +20,9 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import static com.ementor.core.utils.ConstantUtils.SERVICE_NAME;
-
 @Configuration
 @EnableJpaRepositories(
-	basePackages = "com.ementor."+ SERVICE_NAME +".repo",
+	basePackages = "com.ementor." + SERVICE_NAME + ".repo",
 	entityManagerFactoryRef = "coreEntityManagerFactory",
 	transactionManagerRef = "coreTransactionManager")
 public class CoreDataConfiguration {
