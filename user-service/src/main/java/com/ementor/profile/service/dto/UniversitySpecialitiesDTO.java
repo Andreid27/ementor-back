@@ -17,6 +17,7 @@ public class UniversitySpecialitiesDTO {
 
 	private UUID id;
 
+	@Size(min = 2, max = 80, message = "Name must contain between 2 and 50 characters!")
 	private String name;
 
 	private short studyYears;

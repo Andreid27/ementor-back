@@ -26,7 +26,7 @@ public class StudentProfile extends CommonEntity {
 	private Image picture;
 
 	@Column(name = "desired_exam_date")
-	protected OffsetDateTime desiredExamDate;
+	private OffsetDateTime desiredExamDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "desired_university_id")

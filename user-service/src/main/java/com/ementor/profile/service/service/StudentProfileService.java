@@ -1,8 +1,10 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.service;
 
+import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.dto.StudentProfileDTO;
+import com.ementor.profile.service.entity.Image;
 import com.ementor.profile.service.entity.StudentProfile;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
 import java.time.OffsetDateTime;
@@ -19,6 +21,14 @@ public class StudentProfileService {
 
 	private final SecurityService securityService;
 
+	private final ImageService imageService;
+
+	private final AddressService addressService;
+
+	private final UniversityService universityService;
+
+	private final SpecialityService specialityService;
+
 	private final StudentProfilesRepo studentProfilesRepo;
 
 	public String localDateTimeLogger() {
@@ -30,20 +40,37 @@ public class StudentProfileService {
 			.getUserId();
 
 		log.info("[USER-ID: {}] Creating  student profile.", currentUserId);
-		StudentProfile studentProfile = new StudentProfile();
 
-		studentProfile = saveStudentProfile(studentProfile, dto, currentUserId);
+		StudentProfile studentProfile = saveStudentProfile(dto, currentUserId);
+
+		//TODO continue testing. NOT tested - never.
+		studentProfilesRepo.save(studentProfile);
 
 		log.info("[USER-ID: {}] Created  student profile.", currentUserId);
 	}
 
-	private StudentProfile saveStudentProfile(StudentProfile studentProfile,
+	private StudentProfile saveStudentProfile(
 			StudentProfileDTO dto,
 			UUID currentUserId) {
 		return StudentProfile.builder()
 			.userId(currentUserId)
-			// TODO continue here
+			.picture(imageService.getImageById(dto.getPictureId()))
+			.desiredExamDate(dto.getDesiredExamDate())
+			.desiredUniversity(universityService.getUniversity(dto.getUniversityId()))
+			.desiredSpeciality(specialityService.getSpeciality(dto.getSpecialityId()))
+			.school(dto.getSchool())
+			.schoolGrade(dto.getSchoolGrade())
+			.address(addressService.createAddress(dto.getAddress()))
 			.build();
 	}
 
+	public StudentProfile getStudentProfileByUserId(UUID studentProfileId) {
+		return studentProfilesRepo.findByUserId(studentProfileId)
+			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
+	}
+
+	public Image getProfileImageByUserId(UUID userId) {
+		return imageService.getImageById(getStudentProfileByUserId(userId).getPicture()
+			.getId());
+	}
 }

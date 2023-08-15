@@ -36,6 +36,8 @@ begin
 		constraint images_pkey primary key (id)
 	);
 
+    COMMENT ON COLUMN images.file_size IS 'File size in bytes. Kb divede by 1000 and so on.';
+
     drop table if exists universities;
     create table universities (
         id uuid not null default gen_random_uuid (),

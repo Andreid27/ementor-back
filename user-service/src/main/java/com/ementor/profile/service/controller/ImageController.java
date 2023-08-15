@@ -24,8 +24,8 @@ public class ImageController {
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public void upload(@RequestPart(name = "file") MultipartFile file) {
-		service.saveImage(file);
+	public ResponseEntity<UUID> upload(@RequestPart(name = "file") MultipartFile file) {
+		return ResponseEntity.ok(service.saveImage(file));
 	}
 
 	@GetMapping("/download/{fileId}")

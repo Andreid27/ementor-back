@@ -28,7 +28,7 @@ public class ImageService {
 
 	private final ImagesRepo imagesRepo;
 
-	public void saveImage(MultipartFile file) {
+	public UUID saveImage(MultipartFile file) {
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
 
@@ -44,9 +44,11 @@ public class ImageService {
 		image.setFileType(file.getContentType());
 		image.setSize(file.getSize());
 
-		imagesRepo.save(image);
+		image = imagesRepo.save(image);
 
 		log.info("[USER-ID: {}] Saved image.", currentUserId);
+
+		return image.getId();
 	}
 
 	public ResponseEntity<Resource> download(final UUID fileId) {

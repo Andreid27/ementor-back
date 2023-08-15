@@ -35,8 +35,10 @@ public class AddressDTO {
 	@Size(min = 1, max = 10, message = "Address number must contain between 1 and 10 characters!")
 	private String number;
 
+	@Size(max = 50, message = "Address block be maximum 50 characters!")
 	private String block;
 
+	@Size(max = 5, message = "Address staircase be maximum 5 characters!")
 	private String staircase;
 
 	private Integer apartment;

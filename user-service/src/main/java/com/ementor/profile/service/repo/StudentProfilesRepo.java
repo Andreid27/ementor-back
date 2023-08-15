@@ -2,9 +2,11 @@
 package com.ementor.profile.service.repo;
 
 import com.ementor.profile.service.entity.StudentProfile;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface StudentProfilesRepo extends JpaRepository<StudentProfile, UUID>, JpaSpecificationExecutor<StudentProfile> {
+	public Optional<StudentProfile> findByUserId(UUID userId);
 }

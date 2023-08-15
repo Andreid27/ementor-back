@@ -21,12 +21,13 @@ public class UniversityDTO {
 	private UUID id;
 
 	@NotBlank(message = "Name is field required")
-	@Size(min = 2, max = 50, message = "name must contain between 2 and 50 characters!")
+	@Size(min = 2, max = 80, message = "Name must contain between 2 and 50 characters!")
 	private String name;
 
 	@Valid
 	private AddressDTO address;
 
+	@Size(max = 15, message = "Phone must be maximum 15 characters!")
 	private String phone;
 
 	private ExamBookEnum examBook;
