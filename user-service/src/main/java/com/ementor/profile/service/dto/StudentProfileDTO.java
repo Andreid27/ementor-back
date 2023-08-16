@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StudentProfileDTO {
 
+	private UUID id;
+
 	private UUID userId;
 
 	private UUID pictureId;
@@ -24,8 +26,12 @@ public class StudentProfileDTO {
 	@NotNull(message = "University is field required")
 	private UUID universityId;
 
+	private String universityValue;
+
 	@NotNull(message = "University speciality is field required")
 	private UUID specialityId;
+
+	private String specialityValue;
 
 	@NotNull(message = "Disired examen date is field required")
 	private OffsetDateTime desiredExamDate;
