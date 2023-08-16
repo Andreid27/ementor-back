@@ -3,11 +3,13 @@ package com.ementor.profile.service.service;
 
 import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
+import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
 import com.ementor.profile.service.entity.Image;
 import com.ementor.profile.service.entity.StudentProfile;
 import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -28,6 +30,8 @@ public class StudentProfileService {
 	private final UniversityService universityService;
 
 	private final SpecialityService specialityService;
+
+	private final LocationService locationService;
 
 	private final StudentProfilesRepo studentProfilesRepo;
 
@@ -135,6 +139,20 @@ public class StudentProfileService {
 			.build();
 	}
 
+	public ProfilePrerequrireDTO getProfilePrerequire() {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Getting profile needed data.", currentUserId);
+
+		ProfilePrerequrireDTO profilePrerequrireDTO = ProfilePrerequrireDTO.builder()
+			.counties(locationService.getAllByLevelCodes(List.of("COUNTY", "SECTOR")))
+			.universities(universityService.getAll())
+			.build();
+		log.info("[USER-ID: {}] Got profile needed data.", currentUserId);
+		return profilePrerequrireDTO;
+	}
+
 	public StudentProfile getStudentProfileById(UUID studentProfileId) {
 		return studentProfilesRepo.findById(studentProfileId)
 			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
@@ -149,4 +167,5 @@ public class StudentProfileService {
 		return imageService.getImageById(getStudentProfileByUserId(userId).getPicture()
 			.getId());
 	}
+
 }

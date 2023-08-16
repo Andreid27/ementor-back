@@ -1,6 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.controller;
 
+import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
 import com.ementor.profile.service.service.StudentProfileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,6 +53,15 @@ public class ProfileController {
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public void update(@RequestBody @Valid StudentProfileDTO dto) {
 		service.updateStudentProfile(dto);
+	}
+
+	@GetMapping("/get")
+	@Operation(summary = "Get current student profile")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<ProfilePrerequrireDTO> getProfilePrerequire() {
+		return ResponseEntity.ok(service.getProfilePrerequire());
 	}
 
 }
