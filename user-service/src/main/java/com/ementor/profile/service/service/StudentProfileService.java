@@ -43,14 +43,12 @@ public class StudentProfileService {
 
 		StudentProfile studentProfile = saveStudentProfile(dto, currentUserId);
 
-		//TODO continue testing. NOT tested - never.
 		studentProfilesRepo.save(studentProfile);
 
 		log.info("[USER-ID: {}] Created  student profile.", currentUserId);
 	}
 
-	private StudentProfile saveStudentProfile(
-			StudentProfileDTO dto,
+	private StudentProfile saveStudentProfile(StudentProfileDTO dto,
 			UUID currentUserId) {
 		return StudentProfile.builder()
 			.userId(currentUserId)
