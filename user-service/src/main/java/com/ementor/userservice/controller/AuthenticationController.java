@@ -41,4 +41,13 @@ public class AuthenticationController {
 		service.refreshToken(request, response);
 	}
 
+	@GetMapping("/check-availability/{email}")
+	@Operation(summary = "Check if a email is available")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<Boolean> get(@PathVariable String email) {
+		return ResponseEntity.ok(service.checkMailAvailability(email));
+	}
+
 }

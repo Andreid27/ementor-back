@@ -12,4 +12,6 @@ public interface UsersRepo extends JpaRepository<User, UUID>, JpaSpecificationEx
 	User findByFirstName(String firstName);
 
 	Optional<User> findByEmail(String email);
+
+	Boolean existsByEmail(String email);
 }

@@ -132,4 +132,13 @@ public class AuthenticationService {
 			}
 		}
 	}
+
+	public Boolean checkMailAvailability(String email) {
+		log.info("Check user email availability {}.", email);
+
+		Boolean available = !repository.existsByEmail(email);
+
+		log.info("Checked user email availability {}.", email);
+		return available;
+	}
 }
