@@ -27,7 +27,6 @@ public class LocationService {
 	}
 
 	public List<LocationDTO> getAllByLevelCodes(List<String> codes) {
-		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
 		return repo.findAllByCodes(codes)
 			.stream()
 			.map(l -> new LocationDTO(l.getId(), l.getName()))

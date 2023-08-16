@@ -140,16 +140,15 @@ public class StudentProfileService {
 	}
 
 	public ProfilePrerequrireDTO getProfilePrerequire() {
-		UUID currentUserId = securityService.getCurrentUser()
-			.getUserId();
 
-		log.info("[USER-ID: {}] Getting profile needed data.", currentUserId);
+		log.info("[NEW_USER] Getting profile needed data.");
 
 		ProfilePrerequrireDTO profilePrerequrireDTO = ProfilePrerequrireDTO.builder()
 			.counties(locationService.getAllByLevelCodes(List.of("COUNTY", "SECTOR")))
 			.universities(universityService.getAll())
 			.build();
-		log.info("[USER-ID: {}] Got profile needed data.", currentUserId);
+
+		log.info("[NEW_USER] Got profile needed data.");
 		return profilePrerequrireDTO;
 	}
 

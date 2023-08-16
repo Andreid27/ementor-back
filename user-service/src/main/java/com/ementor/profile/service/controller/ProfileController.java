@@ -55,7 +55,7 @@ public class ProfileController {
 		service.updateStudentProfile(dto);
 	}
 
-	@GetMapping("/get")
+	@GetMapping("/profile-prerequire")
 	@Operation(summary = "Get current student profile")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),

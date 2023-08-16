@@ -35,16 +35,14 @@ public class UniversityService {
 	private final UniversitySpecialitiesRepo universitySpecialitiesRepo;
 
 	public List<UniversityDTO> getAll() {
-		UUID currentUserId = securityService.getCurrentUser()
-			.getUserId();
 
-		log.info("[USER-ID: {}] Getting all universities.", currentUserId);
+		log.info("[USER] Getting all universities.");
 
 		List<University> universities = universitiesRepo.findAll();
 		List<UniversityDTO> dtoList = new LinkedList<>();
 		universities.forEach(speciality -> dtoList.add(buildUniversityDto(speciality)));
 
-		log.info("[USER-ID: {}] Got all universities.", currentUserId);
+		log.info("[USER] Got all universities.");
 
 		return dtoList;
 
