@@ -8,7 +8,6 @@ import com.ementor.profile.service.entity.Image;
 import com.ementor.profile.service.entity.StudentProfile;
 import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -32,9 +31,7 @@ public class StudentProfileService {
 
 	private final StudentProfilesRepo studentProfilesRepo;
 
-	public String localDateTimeLogger() {
-		return String.valueOf(OffsetDateTime.now());
-	}
+	// TODO add paginated
 
 	public StudentProfileDTO getUserProfile() {
 		securityService.hasAnyRole(RoleEnum.STUDENT);
@@ -61,7 +58,6 @@ public class StudentProfileService {
 		StudentProfile studentProfile = getStudentProfileById(studentProfileId);
 		StudentProfileDTO studentProfileDTO = buildStudentProfileDto(studentProfile);
 		studentProfileDTO.setId(studentProfile.getId());
-
 
 		log.info("[USER-ID: {}] Got student profile with id {}.", currentUserId, studentProfileId);
 
@@ -126,7 +122,7 @@ public class StudentProfileService {
 	}
 
 	private StudentProfile buildUpdateStudentProfile(StudentProfileDTO dto,
-													 UUID currentUserId) {
+			UUID currentUserId) {
 		return StudentProfile.builder()
 			.userId(currentUserId)
 			.picture(imageService.getImageById(dto.getPictureId()))
