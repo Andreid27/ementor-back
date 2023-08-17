@@ -23,7 +23,7 @@ public class StudentProfile extends CommonEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "picture")
-	private Image picture;
+	private ProfilePicture picture;
 
 	@Column(name = "desired_exam_date")
 	private OffsetDateTime desiredExamDate;

@@ -22,7 +22,7 @@ public class ProfessorProfile extends CommonEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "picture")
-	private Image picture;
+	private ProfilePicture picture;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "university_id")

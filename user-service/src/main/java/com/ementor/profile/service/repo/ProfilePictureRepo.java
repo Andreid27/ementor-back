@@ -1,10 +1,13 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.repo;
 
-import com.ementor.profile.service.entity.Image;
+import com.ementor.profile.service.entity.ProfilePicture;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface ImagesRepo extends JpaRepository<Image, UUID>, JpaSpecificationExecutor<Image> {
+public interface ProfilePictureRepo extends JpaRepository<ProfilePicture, UUID>, JpaSpecificationExecutor<ProfilePicture> {
+
+	Optional<ProfilePicture> findByCreatedBy(UUID userId);
 }

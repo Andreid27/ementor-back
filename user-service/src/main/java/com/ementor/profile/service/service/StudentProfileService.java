@@ -5,7 +5,7 @@ import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
-import com.ementor.profile.service.entity.Image;
+import com.ementor.profile.service.entity.ProfilePicture;
 import com.ementor.profile.service.entity.StudentProfile;
 import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
@@ -23,7 +23,7 @@ public class StudentProfileService {
 
 	private final SecurityService securityService;
 
-	private final ImageService imageService;
+	private final ProfilePictureService profilePictureService;
 
 	private final AddressService addressService;
 
@@ -101,7 +101,7 @@ public class StudentProfileService {
 			UUID currentUserId) {
 		return StudentProfile.builder()
 			.userId(currentUserId)
-			.picture(imageService.getImageById(dto.getPictureId()))
+			.picture(profilePictureService.getImageById(dto.getPictureId()))
 			.desiredExamDate(dto.getDesiredExamDate())
 			.desiredUniversity(universityService.getUniversity(dto.getUniversityId()))
 			.desiredSpeciality(specialityService.getSpeciality(dto.getSpecialityId()))
@@ -129,7 +129,7 @@ public class StudentProfileService {
 			UUID currentUserId) {
 		return StudentProfile.builder()
 			.userId(currentUserId)
-			.picture(imageService.getImageById(dto.getPictureId()))
+			.picture(profilePictureService.getImageById(dto.getPictureId()))
 			.desiredExamDate(dto.getDesiredExamDate())
 			.desiredUniversity(universityService.getUniversity(dto.getUniversityId()))
 			.desiredSpeciality(specialityService.getSpeciality(dto.getSpecialityId()))
@@ -162,8 +162,8 @@ public class StudentProfileService {
 			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
 	}
 
-	public Image getProfileImageByUserId(UUID userId) {
-		return imageService.getImageById(getStudentProfileByUserId(userId).getPicture()
+	public ProfilePicture getProfileImageByUserId(UUID userId) {
+		return profilePictureService.getImageById(getStudentProfileByUserId(userId).getPicture()
 			.getId());
 	}
 
