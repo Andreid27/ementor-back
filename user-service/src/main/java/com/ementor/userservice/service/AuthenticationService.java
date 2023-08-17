@@ -4,10 +4,7 @@ package com.ementor.userservice.service;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.core.service.JwtService;
-import com.ementor.userservice.dto.AuthenticationRequestDTO;
-import com.ementor.userservice.dto.AuthenticationResponseDTO;
-import com.ementor.userservice.dto.RegisterRequestDTO;
-import com.ementor.userservice.dto.UserGetDTO;
+import com.ementor.userservice.dto.*;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.RoleEnum;
 import com.ementor.userservice.repo.UsersRepo;
@@ -35,7 +32,7 @@ public class AuthenticationService {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public AuthenticationResponseDTO register(RegisterRequestDTO request) {
+	public AuthenticationNoProfileResponseDTO register(RegisterRequestDTO request) {
 		User savedUser = null;
 		User user = User.builder()
 			.firstName(request.getFirstName())
@@ -46,6 +43,7 @@ public class AuthenticationService {
 			.role(RoleEnum.STUDENT)
 			.active(true)
 			.disabled(false)
+			.hasProfile(false)
 			.build();
 		try {
 			savedUser = repository.save(user);
@@ -62,13 +60,14 @@ public class AuthenticationService {
 					jwtToken);
 			return null;
 		}
-		return AuthenticationResponseDTO.builder()
+		return AuthenticationNoProfileResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)
+			.hasProfile(false)
 			.build();
 	}
 
-	public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
+	public Object authenticate(AuthenticationRequestDTO request) {
 		authenticationManager
 			.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 		User storedUser = repository.findByEmail(request.getEmail())
@@ -77,6 +76,22 @@ public class AuthenticationService {
 		String refreshToken = jwtService.generateRefreshToken(storedUser);
 		revokeAllUserTokens(storedUser);
 		saveUserToken(storedUser, jwtToken);
+
+		boolean hasProfile = storedUser.getHasProfile();
+		if (!hasProfile) {
+			return AuthenticationNoProfileResponseDTO.builder()
+				.accessToken(jwtToken)
+				.refreshToken(refreshToken)
+				.userData(UserGetDTO.builder()
+					.firstName(storedUser.getFirstName())
+					.lastName(storedUser.getLastName())
+					.email(storedUser.getEmail())
+					.role(storedUser.getRole())
+					.build())
+				.hasProfile(false)
+				.build();
+		}
+
 		return AuthenticationResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)

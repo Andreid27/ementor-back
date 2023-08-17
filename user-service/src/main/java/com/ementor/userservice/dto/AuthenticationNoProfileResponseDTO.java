@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponseDTO {
+public class AuthenticationNoProfileResponseDTO {
 
 	private String accessToken;
 
 	private String refreshToken;
 
 	private UserGetDTO userData;
+
+	private Boolean hasProfile;
 }

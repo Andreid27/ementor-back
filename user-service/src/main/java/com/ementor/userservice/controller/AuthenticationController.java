@@ -1,8 +1,8 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.controller;
 
+import com.ementor.userservice.dto.AuthenticationNoProfileResponseDTO;
 import com.ementor.userservice.dto.AuthenticationRequestDTO;
-import com.ementor.userservice.dto.AuthenticationResponseDTO;
 import com.ementor.userservice.dto.RegisterRequestDTO;
 import com.ementor.userservice.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,11 +28,11 @@ public class AuthenticationController {
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public ResponseEntity<AuthenticationResponseDTO> register(@RequestBody @Valid RegisterRequestDTO request) {
+	public ResponseEntity<AuthenticationNoProfileResponseDTO> register(@RequestBody @Valid RegisterRequestDTO request) {
 		return ResponseEntity.ok(service.register(request));
 	}
 	@PostMapping("/authenticate")
-	public ResponseEntity<AuthenticationResponseDTO> authenticate(@RequestBody AuthenticationRequestDTO request) {
+	public ResponseEntity<Object> authenticate(@RequestBody AuthenticationRequestDTO request) {
 		return ResponseEntity.ok(service.authenticate(request));
 	}
 

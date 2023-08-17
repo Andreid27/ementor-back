@@ -37,9 +37,15 @@ public class User extends CommonEntity implements UserDetails {
 	@Column(name = "phone")
 	private String phone;
 
+	@Column(name = "active")
 	private Boolean active;
 
+	@Column(name = "disabled")
 	private Boolean disabled;
+
+	@Column(name = "hasProfile")
+	private Boolean hasProfile;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "user_role")
 	private RoleEnum role;
