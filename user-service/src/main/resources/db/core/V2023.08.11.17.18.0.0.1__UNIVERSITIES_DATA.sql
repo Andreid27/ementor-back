@@ -35,7 +35,7 @@ do $body$
                (address_id2,'Strada Universității','16','Iași',iasi_county_id,current_timestamp,gen_random_uuid());
 
         insert into universities (id,"name",address_id,phone,exam_book,creation) values
-            (university1,'Facultatea de Medicină - Universitatea de Medicină și Farmacie ''Carol Davila''',address_id1,'+40 21 318 0719','CORINT',now()),
+            (university1,'Universitatea de Medicină și Farmacie ''Carol Davila''',address_id1,'+40 21 318 0719','CORINT',now()),
             (university2,'Universitatea de Medicină și Farmacie ''Grigore T. Popa'' din Iași',address_id2,'+40 232 301 600','BARRONS',now());
 
 
