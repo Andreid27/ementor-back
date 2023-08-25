@@ -15,7 +15,7 @@ begin
 		user_role varchar(14) not null,
 		disabled bool not null,
 		active bool not null,
-		hasProfile boolean not null,
+		hasProfile bool not null,
 		creation timestamptz not null,
 		modified timestamptz null,
 		expires timestamptz null,
