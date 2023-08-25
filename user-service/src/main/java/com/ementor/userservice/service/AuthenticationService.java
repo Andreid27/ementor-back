@@ -62,6 +62,12 @@ public class AuthenticationService {
 		}
 		return AuthenticationNoProfileResponseDTO.builder()
 			.accessToken(jwtToken)
+			.userData(UserGetDTO.builder()
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.email(user.getEmail())
+				.role(user.getRole())
+				.build())
 			.refreshToken(refreshToken)
 			.hasProfile(false)
 			.build();
