@@ -15,7 +15,7 @@ import org.springframework.data.redis.core.RedisHash;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@RedisHash(value = ConstantUtils.RedisHashName, timeToLive = 7200L)
+@RedisHash(value = ConstantUtils.STORED_REDIS_TOKEN, timeToLive = 7200L)
 public class StoredRedisToken implements Serializable {
 	@Id
 	private String id; // in our case the id is the email

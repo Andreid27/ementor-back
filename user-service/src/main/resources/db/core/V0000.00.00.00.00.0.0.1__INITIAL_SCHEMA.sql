@@ -26,10 +26,10 @@ begin
 
 	root_user_id := gen_random_uuid ();
 	insert into users (id, email, first_name, last_name, creation, password,phone ,user_role, active, disabled,hasProfile)
-		values (root_user_id, 'admin@dinca.one', 'admin', 'admin', now(), '$2a$10$P0zFzsVuduPyn0K9KubDDO6lOWN1Eu/WCI5Msm6.ypqdUVdnRLS..','0774688660','ADMIN', true, false, true),
-		(gen_random_uuid(), 'professor@dinca.one', 'professor', 'professor', now(), '$2a$10$YhVfNEeqR7ZQTs0pJTR/AeYoCDeS8bUgcHBEwTaQxJDxWOu6lsvmy','0774688661','PROFESSOR', true, false, true),
+		values (root_user_id, 'admin@dinca.co', 'admin', 'admin', now(), '$2a$10$P0zFzsVuduPyn0K9KubDDO6lOWN1Eu/WCI5Msm6.ypqdUVdnRLS..','0774688660','ADMIN', true, false, true),
+		(gen_random_uuid(), 'professor@dinca.co', 'professor', 'professor', now(), '$2a$10$YhVfNEeqR7ZQTs0pJTR/AeYoCDeS8bUgcHBEwTaQxJDxWOu6lsvmy','0774688661','PROFESSOR', true, false, true),
 		('eff2d861-d4a8-4b40-bc5e-71f21080da5d', 'angie@dinca.co', 'Enache', 'Angie-Maria', now(), '$2a$10$YhVfNEeqR7ZQTs0pJTR/AeYoCDeS8bUgcHBEwTaQxJDxWOu6lsvmy','+40720464201','PROFESSOR', true, false, true),
-		(gen_random_uuid(), 'student@dinca.one', 'student', 'student', now(), '$2a$10$2sqsJRS36JD4hELWbhCBtuaxn/sGxk/zztDI3hF9AwXY/T0Czr/Sy','0774688662','STUDENT', true, false,true);
+		(gen_random_uuid(), 'student@e-mentor.ro', 'student', 'student', now(), '$2a$10$2sqsJRS36JD4hELWbhCBtuaxn/sGxk/zztDI3hF9AwXY/T0Czr/Sy','0774688662','STUDENT', true, false,true);
 
 END
 $body$ language plpgsql;

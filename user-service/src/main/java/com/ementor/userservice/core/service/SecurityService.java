@@ -5,13 +5,19 @@ import com.ementor.userservice.core.exceptions.EmentorApiError;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.RoleEnum;
 import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class SecurityService {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public Authentication getAuthentication() {
 		return SecurityContextHolder.getContext()
@@ -55,6 +61,12 @@ public class SecurityService {
 
 	public User getCurrentUser() {
 		Authentication authentication = getAuthentication();
-		return (User) authentication.getPrincipal();
+		User user = null;
+		try {
+			user = (User) authentication.getPrincipal();
+		} catch (Exception e) {
+			log.error("No user in auth context. Err: {}", e.getMessage());
+		}
+		return user;
 	}
 }

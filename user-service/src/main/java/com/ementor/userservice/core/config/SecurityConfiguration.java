@@ -40,9 +40,6 @@ public class SecurityConfiguration {
 					"/swagger-resources/**", "/configuration/ui", "/configuration/security", "/swagger-ui/**", "/webjars/**",
 					"/user/**", "/swagger-ui.html")
 			.permitAll()
-			// TODO de rezolvat rolul aici
-			// .requestMatchers("/api/redisTokens/**")
-			// .hasAnyRole(String.valueOf(ADMIN))
 			.anyRequest()
 			.authenticated()
 			.and()

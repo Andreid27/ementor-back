@@ -1,6 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.service;
 
+import com.ementor.userservice.core.exceptions.EmentorApiError;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.core.service.JwtService;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,5 +163,15 @@ public class AuthenticationService {
 
 		log.info("Checked user email availability {}.", email);
 		return available;
+	}
+
+	public User getUserByUserId(UUID userId) {
+		return repository.findById(userId)
+			.orElseThrow(() -> new EmentorApiError("User not found"));
+	}
+
+	public User getUserByEmail(String email) {
+		return repository.findByEmail(email)
+			.orElseThrow(() -> new EmentorApiError("User not found"));
 	}
 }
