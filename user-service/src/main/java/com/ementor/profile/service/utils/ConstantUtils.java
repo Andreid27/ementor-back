@@ -15,7 +15,7 @@ public class ConstantUtils {
 
 	public static final String LOCAL_ENV_URL = "http://localhost:" + PORT;
 
-	public static final String PRODUCTION_HOST = "http://api.ementor.dinca.one";
+	public static final String PRODUCTION_HOST = "https://api.ementor.ro";
 
 	public static final String PRODUCTION_SERVICE = "service2";
 
