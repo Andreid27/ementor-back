@@ -77,18 +77,16 @@ public class ProfilePictureService {
 
 	private byte[] getPreparedIamge(byte[] originalBytes) throws IOException {
 		BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(originalBytes));
-
-		originalImage = getResizedImage(originalImage);
-
+		originalImage = getResizedImage(originalImage, 1920, 1920);
 		return compressImage(originalImage);
 	}
 
-	private BufferedImage getResizedImage(BufferedImage originalImage) {
+	private BufferedImage getResizedImage(BufferedImage originalImage,Integer desiredWidth, Integer desiredHeight) {
 		int originalWidth = originalImage.getWidth();
 		int originalHeight = originalImage.getHeight();
 
-		if (originalWidth > 1920 || originalHeight > 1920) {
-			Dimension boundary = new Dimension(1920, 1920);
+		if (originalWidth > desiredWidth || originalHeight > desiredHeight) {
+			Dimension boundary = new Dimension(desiredWidth, desiredHeight);
 			Dimension newSize = getScaledDimension(new Dimension(originalWidth, originalHeight), boundary);
 			originalImage = resizeImage(originalImage, newSize.width, newSize.height);
 		}
