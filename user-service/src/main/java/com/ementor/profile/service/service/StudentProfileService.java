@@ -2,19 +2,29 @@
 package com.ementor.profile.service.service;
 
 import com.ementor.profile.service.core.exceptions.EmentorApiError;
+import com.ementor.profile.service.core.redis.entity.StoredRedisToken;
+import com.ementor.profile.service.core.redis.services.StoredRedisTokenService;
 import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
 import com.ementor.profile.service.entity.ProfilePicture;
 import com.ementor.profile.service.entity.StudentProfile;
+import com.ementor.profile.service.entity.User;
 import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +42,8 @@ public class StudentProfileService {
 	private final SpecialityService specialityService;
 
 	private final LocationService locationService;
+
+	private final StoredRedisTokenService storedRedisTokenService;
 
 	private final StudentProfilesRepo studentProfilesRepo;
 
@@ -92,7 +104,9 @@ public class StudentProfileService {
 
 		StudentProfile studentProfile = saveStudentProfile(dto, currentUserId);
 
-		studentProfilesRepo.save(studentProfile);
+		studentProfile = studentProfilesRepo.save(studentProfile);
+
+		sendProfilePictureThumbnail();
 
 		log.info("[USER-ID: {}] Created  student profile.", currentUserId);
 	}
@@ -109,6 +123,68 @@ public class StudentProfileService {
 			.schoolGrade(dto.getSchoolGrade())
 			.address(addressService.createAddress(dto.getAddress()))
 			.build();
+	}
+
+	private void sendProfilePictureThumbnail() {
+		User user = securityService.getCurrentUser();
+		ProfilePicture profilePicture = profilePictureService.getImageByUserId(user.getUserId());
+		byte[] reducedFilePicture = null;
+		try {
+			reducedFilePicture = profilePictureService.getPreparedIamge(profilePicture.getFileData(), 100, 100);
+		} catch (IOException e) {
+			throw new EmentorApiError("Could not get bytes of data. Either cannot save or cannot compress.", 404);
+		}
+		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
+			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is last token or valid token."));
+		if (storedRedisToken.getToken() == null) {
+			log.error("StoredRedisToken error: Token not found for user [{}]", user.getUserId());
+			return;
+		}
+
+		sendPostWithFile(reducedFilePicture, storedRedisToken, profilePicture.getFileName());
+
+	}
+
+	public void sendPostWithFile(byte[] reducedFilePicture,
+			StoredRedisToken storedRedisToken,
+			String originalFilename) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		headers.setBearerAuth(storedRedisToken.getToken());
+
+		ByteArrayResource resource = new ByteArrayResource(reducedFilePicture) {
+			@Override
+			public String getFilename() {
+				return "thumb_" + originalFilename;
+			}
+		};
+
+		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+		body.add("file", resource);
+
+		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+		RestTemplate restTemplate = new RestTemplate();
+		String serverUrl = "https://api.e-mentor.ro/service1/profile-image/upload"; // Replace
+																					// this
+																					// with
+																					// your
+																					// receiving
+																					// API
+																					// URL
+		ResponseEntity<String> response = restTemplate.postForEntity(serverUrl, requestEntity, String.class);
+
+		if (response.getStatusCode() == HttpStatus.OK) {
+			String isUploaded = response.getBody();
+			// process the boolean response here
+			log.info("Post success, {}", isUploaded);
+
+			// TODO continue here validating UUID.
+		} else {
+			// handle the error here
+			log.error(response.getStatusCode()
+				.toString());
+		}
 	}
 
 	public void updateStudentProfile(StudentProfileDTO dto) {
@@ -160,11 +236,6 @@ public class StudentProfileService {
 	public StudentProfile getStudentProfileByUserId(UUID userId) {
 		return studentProfilesRepo.findByUserId(userId)
 			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
-	}
-
-	public ProfilePicture getProfileImageByUserId(UUID userId) {
-		return profilePictureService.getImageById(getStudentProfileByUserId(userId).getPicture()
-			.getId());
 	}
 
 }

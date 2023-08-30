@@ -5,6 +5,19 @@ import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.entity.ProfilePicture;
 import com.ementor.profile.service.repo.ProfilePictureRepo;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.UUID;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,20 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +57,7 @@ public class ProfilePictureService {
 		}
 
 		try {
-			byte[] compressedImage = getPreparedIamge(file.getBytes());
+			byte[] compressedImage = getPreparedIamge(file.getBytes(), 1920, 1920);
 			profilePicture.setFileData(compressedImage);
 			profilePicture.setSize(compressedImage.length);
 		} catch (IOException ioException) {
@@ -75,13 +74,17 @@ public class ProfilePictureService {
 		return profilePicture.getId();
 	}
 
-	private byte[] getPreparedIamge(byte[] originalBytes) throws IOException {
+	public byte[] getPreparedIamge(byte[] originalBytes,
+			Integer desiredWidth,
+			Integer desiredHeight) throws IOException {
 		BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(originalBytes));
-		originalImage = getResizedImage(originalImage, 1920, 1920);
+		originalImage = getResizedImage(originalImage, desiredWidth, desiredHeight);
 		return compressImage(originalImage);
 	}
 
-	private BufferedImage getResizedImage(BufferedImage originalImage,Integer desiredWidth, Integer desiredHeight) {
+	private BufferedImage getResizedImage(BufferedImage originalImage,
+			Integer desiredWidth,
+			Integer desiredHeight) {
 		int originalWidth = originalImage.getWidth();
 		int originalHeight = originalImage.getHeight();
 
@@ -164,6 +167,10 @@ public class ProfilePictureService {
 
 	public ProfilePicture getImageById(UUID id) {
 		return profilePictureRepo.findById(id)
+			.orElseThrow(() -> new EmentorApiError("ProfilePicture not found"));
+	}
+	public ProfilePicture getImageByUserId(UUID userId) {
+		return profilePictureRepo.findByCreatedBy(userId)
 			.orElseThrow(() -> new EmentorApiError("ProfilePicture not found"));
 	}
 }
