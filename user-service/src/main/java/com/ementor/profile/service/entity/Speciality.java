@@ -2,8 +2,9 @@
 package com.ementor.profile.service.entity;
 
 import com.ementor.profile.service.core.entity.CommonEntity;
-import jakarta.persistence.*;
-import java.util.List;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,6 @@ public class Speciality extends CommonEntity {
 	@Column(name = "about")
 	private String about;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "speciality")
-	private List<UniversitySpeciality> universities;
+	// @OneToMany(fetch = FetchType.LAZY, mappedBy = "speciality")
+	// private List<UniversitySpeciality> universities;
 }

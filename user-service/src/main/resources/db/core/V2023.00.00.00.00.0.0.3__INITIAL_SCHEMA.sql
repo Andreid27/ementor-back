@@ -84,7 +84,7 @@ begin
     drop table if exists professor_profile;
     create table professor_profile (
          id uuid not null default gen_random_uuid (),
-         user_id uuid not null,
+         user_id uuid not null UNIQUE,
          picture uuid null,
          university_id uuid not null,
          speciality_id uuid not null,
@@ -103,7 +103,7 @@ begin
     drop table if exists student_profiles;
 	create table student_profiles (
 		id uuid not null default gen_random_uuid (),
-        user_id uuid not null,
+        user_id uuid not null UNIQUE,
         picture uuid null,
         desired_exam_date timestamptz not null,
         desired_university_id uuid not null,

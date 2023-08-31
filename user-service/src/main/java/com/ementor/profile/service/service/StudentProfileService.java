@@ -1,6 +1,11 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.service;
 
+import com.ementor.profile.service.core.entity.pagination.*;
+import com.ementor.profile.service.core.entity.pagination.filter.FilterGroup;
+import com.ementor.profile.service.core.entity.pagination.filter.FilterOption;
+import com.ementor.profile.service.core.entity.pagination.filter.FilterOptionUtils;
+import com.ementor.profile.service.core.entity.pagination.filter.FilterType;
 import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.redis.entity.StoredRedisToken;
 import com.ementor.profile.service.core.redis.services.StoredRedisTokenService;
@@ -8,28 +13,35 @@ import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
 import com.ementor.profile.service.entity.ProfilePicture;
+import com.ementor.profile.service.entity.Speciality;
 import com.ementor.profile.service.entity.StudentProfile;
 import com.ementor.profile.service.entity.User;
 import com.ementor.profile.service.enums.RoleEnum;
+import com.ementor.profile.service.repo.SpecialitiesRepo;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
+import com.ementor.profile.service.utils.ConstantUtils;
+import jakarta.persistence.EntityManager;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class StudentProfileService {
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final EntityManager entityManager;
 
 	private final SecurityService securityService;
 
@@ -46,6 +58,8 @@ public class StudentProfileService {
 	private final StoredRedisTokenService storedRedisTokenService;
 
 	private final StudentProfilesRepo studentProfilesRepo;
+
+	private final SpecialitiesRepo specialitiesRepo;
 
 	// TODO add paginated
 
@@ -95,6 +109,7 @@ public class StudentProfileService {
 			.build();
 	}
 
+	@Transactional
 	public void createStudentProfile(StudentProfileDTO dto) {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
 		UUID currentUserId = securityService.getCurrentUser()
@@ -104,7 +119,7 @@ public class StudentProfileService {
 
 		StudentProfile studentProfile = saveStudentProfile(dto, currentUserId);
 
-		studentProfile = studentProfilesRepo.save(studentProfile);
+		studentProfilesRepo.save(studentProfile);
 
 		sendProfilePictureThumbnail();
 
@@ -141,11 +156,28 @@ public class StudentProfileService {
 			return;
 		}
 
-		sendPostWithFile(reducedFilePicture, storedRedisToken, profilePicture.getFileName());
+		Boolean hasUploadedThumbnail = sendPostWithFile(reducedFilePicture, storedRedisToken, profilePicture.getFileName());
+		Boolean hasProfileCompleted = studentProfilesRepo.findByUserId(user.getUserId())
+			.isPresent();
 
+		if (hasUploadedThumbnail && hasProfileCompleted) {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setBearerAuth(storedRedisToken.getToken());
+
+			HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+			RestTemplate restTemplate = new RestTemplate();
+			String serverUrl = ConstantUtils.USER_SERVICE_PROD_URL + "/profile-image/profile-completed/true";
+
+			ResponseEntity<Boolean> response = restTemplate.exchange(serverUrl, HttpMethod.GET, requestEntity,
+					Boolean.class);
+
+			Boolean responseBody = response.getBody();
+			log.info("User {} completed the successful: {}", user.getEmail(), responseBody);
+		}
 	}
 
-	public void sendPostWithFile(byte[] reducedFilePicture,
+	public Boolean sendPostWithFile(byte[] reducedFilePicture,
 			StoredRedisToken storedRedisToken,
 			String originalFilename) {
 		HttpHeaders headers = new HttpHeaders();
@@ -165,25 +197,23 @@ public class StudentProfileService {
 		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
 		RestTemplate restTemplate = new RestTemplate();
-		String serverUrl = "https://api.e-mentor.ro/service1/profile-image/upload"; // Replace
-																					// this
-																					// with
-																					// your
-																					// receiving
-																					// API
-																					// URL
+		String serverUrl = ConstantUtils.USER_SERVICE_PROD_URL + "/profile-image/upload";
 		ResponseEntity<String> response = restTemplate.postForEntity(serverUrl, requestEntity, String.class);
 
 		if (response.getStatusCode() == HttpStatus.OK) {
 			String isUploaded = response.getBody();
-			// process the boolean response here
-			log.info("Post success, {}", isUploaded);
-
-			// TODO continue here validating UUID.
+			try {
+				isUploaded = isUploaded.replace("\"", "");
+				UUID uuid = UUID.fromString(isUploaded);
+				log.info("Post success, image uploaded with id: {}", uuid);
+				return true;
+			} catch (IllegalArgumentException e) {
+				throw new EmentorApiError("The upload was not successful, UUID not found");
+			}
 		} else {
-			// handle the error here
 			log.error(response.getStatusCode()
 				.toString());
+			return false;
 		}
 	}
 
@@ -195,6 +225,7 @@ public class StudentProfileService {
 		log.info("[USER-ID: {}] Updating  student profile.", currentUserId);
 
 		StudentProfile studentProfile = buildUpdateStudentProfile(dto, currentUserId);
+		studentProfile.setId(dto.getId());
 
 		studentProfilesRepo.save(studentProfile);
 
@@ -236,6 +267,33 @@ public class StudentProfileService {
 	public StudentProfile getStudentProfileByUserId(UUID userId) {
 		return studentProfilesRepo.findByUserId(userId)
 			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
+	}
+
+	public PaginatedResponse<Speciality> getPaginated(PaginatedRequest request) {
+		securityService.hasAnyRole(RoleEnum.PROFESSOR, RoleEnum.ADMIN);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID:{}] Getting workpoints list - page {}", currentUserId, request.getPage());
+
+		final PaginatedRequestSpecification<Speciality> spec = PaginatedRequestSpecificationUtils
+			.genericSpecification(request.bind(Speciality.class), false, Speciality.class);
+		Page<Speciality> findAll = specialitiesRepo.findAll(spec, ServiceUtils.convertToPageRequest(request));
+		PaginatedResponse<Speciality> paginatedResponse = new PaginatedResponse<>();
+
+		paginatedResponse.setData(findAll.getContent()
+			.stream()
+			.toList());
+		ServiceUtils.extractPaginationMetadata(findAll, paginatedResponse);
+		paginatedResponse.setFilterOptions(filterOptions(request));
+		paginatedResponse.setCurrentRequest(request);
+		log.info("[USER-ID:{}] Got workpoints list - page {}", currentUserId, request.getPage());
+		return paginatedResponse;
+	}
+
+	public List<FilterOption<?>> filterOptions(PaginatedRequest request) {
+		return FilterOptionUtils.createFilterOptions(entityManager, request, Speciality.class,
+				new FilterGroup("name", FilterType.TEXT_CONTENT), new FilterGroup("about", FilterType.TEXT_OPTIONS));
 	}
 
 }

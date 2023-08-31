@@ -15,9 +15,11 @@ public class ConstantUtils {
 
 	public static final String LOCAL_ENV_URL = "http://localhost:" + PORT;
 
-	public static final String PRODUCTION_HOST = "https://api.ementor.ro";
+	public static final String PRODUCTION_HOST = "https://api.e-mentor.ro";
 
 	public static final String PRODUCTION_SERVICE = "service2";
 
 	public static final String PRODUCTION_ENV_URL = PRODUCTION_HOST + "/" + PRODUCTION_SERVICE;
+
+	public static final String USER_SERVICE_PROD_URL = PRODUCTION_HOST + "/service1";
 }
