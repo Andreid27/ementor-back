@@ -5,7 +5,6 @@ import com.ementor.userservice.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -13,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @RestController
-@RequestMapping("/profile-image")
+@RequestMapping("/profile-data")
 @RequiredArgsConstructor
 public class UserProfileController {
 	private final ProfileService service;
@@ -37,7 +38,7 @@ public class UserProfileController {
 		return service.download(fileId);
 	}
 
-	@GetMapping("/profile-compelted/{isProfileComplete}")
+	@GetMapping("/profile-completed/{isProfileComplete}")
 	@Operation(summary = "Check if a email is available")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
