@@ -5,17 +5,16 @@ import com.ementor.profile.service.core.entity.pagination.PaginatedRequest;
 import com.ementor.profile.service.core.entity.pagination.PaginatedResponse;
 import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
-import com.ementor.profile.service.entity.Speciality;
+import com.ementor.profile.service.entity.StudentProfileView;
 import com.ementor.profile.service.service.StudentProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/profile")
@@ -28,7 +27,7 @@ public class ProfileController {
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public PaginatedResponse<Speciality> getPaginated(@RequestBody PaginatedRequest request) {
+	public PaginatedResponse<StudentProfileView> getPaginated(@RequestBody PaginatedRequest request) {
 		return service.getPaginated(request);
 	}
 
