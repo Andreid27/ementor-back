@@ -233,7 +233,7 @@ public class StudentProfileService {
 		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
 		RestTemplate restTemplate = new RestTemplate();
-		String serverUrl = ConstantUtils.USER_SERVICE_PROD_URL + "/profile-image/upload";
+		String serverUrl = ConstantUtils.USER_SERVICE_PROD_URL + "/profile-data/upload";
 		ResponseEntity<String> response = restTemplate.postForEntity(serverUrl, requestEntity, String.class);
 
 		if (response.getStatusCode() == HttpStatus.OK) {
