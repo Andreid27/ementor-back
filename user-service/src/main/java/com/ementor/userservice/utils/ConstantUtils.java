@@ -13,7 +13,7 @@ public class ConstantUtils {
 	public static final long PORT = 49201;
 	public static final String LOCAL_ENV_URL = "http://localhost:" + PORT;
 
-	public static final String PRODUCTION_HOST = "http://api.e-mentor.ro";
+	public static final String PRODUCTION_HOST = "https://api.e-mentor.ro";
 
 	public static final String PRODUCTION_SERVICE = "service1";
 	public static final String PRODUCTION_ENV_URL = PRODUCTION_HOST + "/" + PRODUCTION_SERVICE;

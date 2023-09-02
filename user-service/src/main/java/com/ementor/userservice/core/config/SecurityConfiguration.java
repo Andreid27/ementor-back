@@ -1,6 +1,9 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.core.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +19,6 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -37,10 +36,9 @@ public class SecurityConfiguration {
 			.disable()
 			.cors(withDefaults())
 			.authorizeHttpRequests()
-			.requestMatchers("/api/v1/auth/**", "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**",
-					"/e-mentorapi/v3/api-docs", "/e-mentorapi/v3/api-docs/**", "/swagger-resources", "/swagger-resources/**",
-					"/configuration/ui", "/configuration/security", "/swagger-ui/**", "/webjars/**", "/user/**",
-					"/swagger-ui.html")
+			.requestMatchers("/api/v1/auth/**", "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**", "/e-docs", "/e-docs/**",
+					"/swagger-resources", "/swagger-resources/**", "/configuration/ui", "/configuration/security",
+					"/swagger-ui/**", "/webjars/**", "/user/**", "/swagger-ui.html")
 			.permitAll()
 			.anyRequest()
 			.authenticated()
