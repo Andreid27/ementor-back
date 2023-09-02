@@ -21,6 +21,9 @@ import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.repo.StudentProfilesViewRepo;
 import com.ementor.profile.service.utils.ConstantUtils;
 import jakarta.persistence.EntityManager;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
