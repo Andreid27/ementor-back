@@ -1,6 +1,8 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.service;
 
+import static com.ementor.profile.service.utils.PictureUtils.getPreparedIamge;
+
 import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.redis.entity.StoredRedisToken;
 import com.ementor.profile.service.core.redis.services.StoredRedisTokenService;
@@ -10,6 +12,8 @@ import com.ementor.profile.service.entity.User;
 import com.ementor.profile.service.repo.ProfilePictureRepo;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.utils.ConstantUtils;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static com.ementor.profile.service.utils.PictureUtils.getPreparedIamge;
 
 @Service
 @RequiredArgsConstructor
