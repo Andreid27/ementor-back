@@ -21,5 +21,5 @@ public class ConstantUtils {
 
 	public static final String PRODUCTION_ENV_URL = PRODUCTION_HOST + "/" + PRODUCTION_SERVICE;
 
-	public static final String USER_SERVICE_PROD_URL = PRODUCTION_HOST + "/service1";
+	public static final String USER_SERVICE_PROD_URL = "http://api.e-mentor.ro" + "/service1";
 }
