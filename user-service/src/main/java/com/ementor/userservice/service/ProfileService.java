@@ -85,6 +85,21 @@ public class ProfileService {
 			.body(new ByteArrayResource(profilePicture.getFileData()));
 	}
 
+	public ResponseEntity<Resource> downloadThumbnail() {
+		final UUID currentUserId = securityService.getCurrentUser()
+			.getId();
+		log.info("[USER: {}] Downloading profilePicture ...", currentUserId);
+
+		ProfilePicture profilePicture = getImageByUserId(currentUserId);
+
+		log.info("[USER: {}] Downloaded profilePicture.", currentUserId);
+
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(profilePicture.getFileType()))
+			.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profilePicture.getFileName() + "\"")
+			.body(new ByteArrayResource(profilePicture.getFileData()));
+	}
+
 	public Boolean completeProfile(Boolean isProfileCompleted) {
 		final UUID currentUserId = securityService.getCurrentUser()
 			.getId();
@@ -107,6 +122,10 @@ public class ProfileService {
 
 	public ProfilePicture getImageById(UUID id) {
 		return profilePictureRepo.findById(id)
+			.orElseThrow(() -> new EmentorApiError("ProfilePicture not found"));
+	}
+	public ProfilePicture getImageByUserId(UUID userId) {
+		return profilePictureRepo.findByCreatedBy(userId)
 			.orElseThrow(() -> new EmentorApiError("ProfilePicture not found"));
 	}
 }

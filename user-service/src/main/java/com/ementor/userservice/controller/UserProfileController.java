@@ -36,6 +36,14 @@ public class UserProfileController {
 	public ResponseEntity<Resource> download(@PathVariable(name = "fileId") UUID fileId) {
 		return service.download(fileId);
 	}
+	@GetMapping("/download/user-thumbnail")
+	@Operation(summary = "Download file")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<Resource> downloadUserThumbnail() {
+		return service.downloadThumbnail();
+	}
 
 	@GetMapping("/profile-completed/{isProfileComplete}")
 	@Operation(summary = "Check if a email is available")
