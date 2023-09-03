@@ -6,6 +6,9 @@ import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.entity.ProfilePicture;
 import com.ementor.profile.service.repo.ProfilePictureRepo;
 import com.ementor.profile.service.utils.PictureUtils;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -66,17 +65,14 @@ public class ProfilePictureService {
 
 		profilePicture = profilePictureRepo.save(profilePicture);
 
-		if(updatePicture){
+		if (updatePicture) {
 			userServiceRest.sendProfilePictureThumbnail();
 		}
-
 
 		log.info("[USER-ID: {}] Saved profilePicture.", currentUserId);
 
 		return profilePicture.getId();
 	}
-
-
 
 	public ResponseEntity<Resource> download(final UUID fileId) {
 		final UUID currentUserId = securityService.getCurrentUser()

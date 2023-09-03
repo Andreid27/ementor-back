@@ -17,15 +17,14 @@ import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.repo.StudentProfilesViewRepo;
 import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -166,8 +165,6 @@ public class StudentProfileService {
 			.address(addressService.createAddress(dto.getAddress()))
 			.build();
 	}
-
-
 
 	public void updateStudentProfile(StudentProfileDTO dto) {
 		securityService.hasAnyRole(RoleEnum.STUDENT);
