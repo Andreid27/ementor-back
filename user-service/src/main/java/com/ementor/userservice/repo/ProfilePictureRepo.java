@@ -2,12 +2,11 @@
 package com.ementor.userservice.repo;
 
 import com.ementor.userservice.entity.ProfilePicture;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-import java.util.UUID;
 
 public interface ProfilePictureRepo extends JpaRepository<ProfilePicture, UUID>, JpaSpecificationExecutor<ProfilePicture> {
 	@Transactional
