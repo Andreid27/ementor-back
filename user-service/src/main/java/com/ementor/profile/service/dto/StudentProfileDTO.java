@@ -1,6 +1,8 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.dto;
 
+import com.ementor.profile.service.enums.SchoolDomainEnum;
+import com.ementor.profile.service.enums.SchoolSpecialityEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -38,6 +40,12 @@ public class StudentProfileDTO {
 
 	@Size(max = 80, message = "School name be maximum 80 characters!")
 	private String school;
+
+	@Size(max = 50, message = "School domain be maximum 50 characters!")
+	private SchoolDomainEnum schoolDomain;
+
+	@Size(max = 30, message = "School name be maximum 50 characters!")
+	private SchoolSpecialityEnum schoolSpeciality;
 
 	private float schoolGrade;
 

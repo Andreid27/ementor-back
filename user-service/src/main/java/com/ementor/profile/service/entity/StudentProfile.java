@@ -2,13 +2,16 @@
 package com.ementor.profile.service.entity;
 
 import com.ementor.profile.service.core.entity.CommonEntity;
+import com.ementor.profile.service.enums.SchoolDomainEnum;
+import com.ementor.profile.service.enums.SchoolSpecialityEnum;
 import jakarta.persistence.*;
-import java.time.OffsetDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -38,6 +41,14 @@ public class StudentProfile extends CommonEntity {
 
 	@Column(name = "school")
 	private String school;
+
+	@Column(name = "school_domain")
+	@Enumerated(EnumType.STRING)
+	private SchoolDomainEnum schoolDomain;
+
+	@Column(name = "school_speciality")
+	@Enumerated(EnumType.STRING)
+	private SchoolSpecialityEnum schoolSpeciality;
 
 	@Column(name = "school_grade")
 	private float schoolGrade;

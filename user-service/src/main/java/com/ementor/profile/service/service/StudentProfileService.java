@@ -130,6 +130,8 @@ public class StudentProfileService {
 			.specialityId(studentProfile.getDesiredSpeciality()
 				.getId())
 			.school(studentProfile.getSchool())
+			.schoolDomain(studentProfile.getSchoolDomain())
+			.schoolSpeciality(studentProfile.getSchoolSpeciality())
 			.schoolGrade(studentProfile.getSchoolGrade())
 			.address(addressService.buildAddressDto(studentProfile.getAddress()))
 			.build();
@@ -161,6 +163,8 @@ public class StudentProfileService {
 			.desiredUniversity(universityService.getUniversity(dto.getUniversityId()))
 			.desiredSpeciality(specialityService.getSpeciality(dto.getSpecialityId()))
 			.school(dto.getSchool())
+			.schoolDomain(dto.getSchoolDomain())
+			.schoolSpeciality(dto.getSchoolSpeciality())
 			.schoolGrade(dto.getSchoolGrade())
 			.address(addressService.createAddress(dto.getAddress()))
 			.build();

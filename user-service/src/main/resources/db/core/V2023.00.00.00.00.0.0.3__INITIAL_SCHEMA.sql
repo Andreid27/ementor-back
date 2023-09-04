@@ -109,6 +109,8 @@ begin
         desired_university_id uuid not null,
         desired_speciality_id uuid not null,
         school varchar(80) not null,
+        school_domain varchar(50) not null,
+        school_speciality varchar(30) not null,
         school_grade float4 null,
         address_id uuid not null,
         professor_id uuid null,
