@@ -49,6 +49,15 @@ public class ProfileController {
 		return ResponseEntity.ok(service.getUserProfile());
 	}
 
+	@GetMapping(value = {"/get-full", "/get-full/{id}"})
+	@Operation(summary = "Get student profile")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<StudentProfileDTO> getFull(@PathVariable(required = false) UUID id) {
+		return ResponseEntity.ok(service.getFull(id));
+	}
+
 	@PostMapping("/create")
 	@Operation(summary = "Create a new student profile.")
 	@ApiResponses(

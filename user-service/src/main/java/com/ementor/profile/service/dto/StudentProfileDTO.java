@@ -55,4 +55,6 @@ public class StudentProfileDTO {
 
 	@Valid
 	private AddressDTO address;
+
+	private UserDTO user;
 }

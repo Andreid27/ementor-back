@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserGetDTO {
+public class UserDTO {
 	private String email;
 
 	private String firstName;
@@ -19,4 +19,10 @@ public class UserGetDTO {
 	private String lastName;
 
 	private RoleEnum role;
+
+	private Boolean active;
+
+	private Boolean disabled;
+
+	private Boolean hasProfile;
 }

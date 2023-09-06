@@ -10,12 +10,14 @@ import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.core.service.SecurityService;
 import com.ementor.profile.service.dto.ProfilePrerequrireDTO;
 import com.ementor.profile.service.dto.StudentProfileDTO;
+import com.ementor.profile.service.dto.UserDTO;
 import com.ementor.profile.service.entity.StudentProfile;
 import com.ementor.profile.service.entity.StudentProfileView;
 import com.ementor.profile.service.entity.User;
 import com.ementor.profile.service.enums.RoleEnum;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.repo.StudentProfilesViewRepo;
+import com.ementor.profile.service.utils.ConstantUtils;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
@@ -120,6 +122,35 @@ public class StudentProfileService {
 		return studentProfileDTO;
 	}
 
+	public StudentProfileDTO getFull(UUID studentProfileId) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		if (studentProfileId != null) {
+			return getFullStudentProfile(studentProfileId);
+		}
+
+		return getFullStudentProfile(currentUserId);
+	}
+
+	private StudentProfileDTO getFullStudentProfile(UUID studentProfileId) {
+		User currentUser = securityService.getCurrentUser();
+
+		log.info("[USER-ID: {}] Getting student profile with id {}.", currentUser.getUserId(), studentProfileId);
+
+		String userGetEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/get";
+		UserDTO userDTO = userServiceRest.restGetRequest(userGetEndpoint, currentUser, UserDTO.class);
+		StudentProfile studentProfile = getStudentProfileById(studentProfileId);
+		StudentProfileDTO studentProfileDTO = buildStudentProfileDto(studentProfile);
+		studentProfileDTO.setUserId(studentProfile.getUserId());
+		studentProfileDTO.setId(studentProfile.getId());
+		studentProfileDTO.setUser(userDTO);
+
+		log.info("[USER-ID: {}] Got student profile with id {}.", currentUser.getUserId(), studentProfileId);
+
+		return studentProfileDTO;
+	}
+
 	public StudentProfileDTO buildStudentProfileDto(StudentProfile studentProfile) {
 		return StudentProfileDTO.builder()
 			.pictureId(studentProfile.getPicture()
@@ -214,12 +245,12 @@ public class StudentProfileService {
 
 	public StudentProfile getStudentProfileById(UUID studentProfileId) {
 		return studentProfilesRepo.findById(studentProfileId)
-			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
+			.orElseThrow(() -> new EmentorApiError("Student profile not found", 404));
 	}
 
 	public StudentProfile getStudentProfileByUserId(UUID userId) {
 		return studentProfilesRepo.findByUserId(userId)
-			.orElseThrow(() -> new EmentorApiError("Student profile not found"));
+			.orElseThrow(() -> new EmentorApiError("Student profile not found", 404));
 	}
 
 }

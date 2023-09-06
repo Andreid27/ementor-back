@@ -17,6 +17,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,8 @@ public class UserServiceRestService {
 
 	private final StoredRedisTokenService storedRedisTokenService;
 
+	private final RestTemplateBuilder restTemplateBuilder;
+
 	private final ProfilePictureRepo profilePictureRepo;
 
 	private final StudentProfilesRepo studentProfilesRepo;
@@ -47,7 +50,7 @@ public class UserServiceRestService {
 			throw new EmentorApiError("Could not get bytes of data. Either cannot save or cannot compress.", 404);
 		}
 		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
-			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is last token or valid token."));
+			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is last token or valid token.", 403));
 		if (storedRedisToken.getToken() == null) {
 			log.error("StoredRedisToken error: Token not found for user [{}]", user.getUserId());
 			return;
@@ -92,8 +95,9 @@ public class UserServiceRestService {
 		body.add("file", resource);
 
 		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-		RestTemplate restTemplate = new RestTemplate();
+		// Check if works without declaration here. Should use the one declared
+		// in the depency injection.
+		RestTemplate restTemplate = restTemplateBuilder.build();
 		String serverUrl = ConstantUtils.USER_SERVICE_PROD_URL + "/profile-data/upload";
 		ResponseEntity<String> response = restTemplate.postForEntity(serverUrl, requestEntity, String.class);
 
@@ -115,6 +119,29 @@ public class UserServiceRestService {
 				.toString());
 			return false;
 		}
+	}
+
+	public <T> T restGetRequest(String url,
+			User user,
+			Class<T> responseType) {
+		// Create an HttpHeaders object and set the headers from the map
+		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
+			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is last token or valid token.", 403));
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setConnection("keep-alive");
+		httpHeaders.setBearerAuth(storedRedisToken.getToken());
+
+		// Create an HttpEntity object and pass the HttpHeaders object
+		HttpEntity<String> request = new HttpEntity<>(httpHeaders);
+
+		// Use the exchange method and pass the URL, the HTTP method, the
+		// HttpEntity object, and the response type as parameters
+		RestTemplate restTemplate = restTemplateBuilder.build();
+		ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, responseType);
+
+		// Return the response body by calling the getBody method
+		return response.getBody();
 	}
 
 	public ProfilePicture getImageByUserId(UUID userId) {
