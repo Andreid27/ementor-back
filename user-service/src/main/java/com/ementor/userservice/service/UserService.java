@@ -87,6 +87,7 @@ public class UserService {
 		UUID currentUserId = securityService.getCurrentUser()
 			.getId();
 		if (userId != null) {
+			securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
 			return getUserGetDtoByUserId(userId);
 		}
 
@@ -96,7 +97,6 @@ public class UserService {
 	public UserGetDTO getUserGetDtoByUserId(UUID userId) {
 		UUID currentUserId = securityService.getCurrentUser()
 			.getId();
-		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
 
 		log.info("[USER-ID: {}] Getting user with id {}.", currentUserId, userId);
 

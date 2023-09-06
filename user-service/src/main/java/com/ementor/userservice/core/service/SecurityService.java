@@ -53,7 +53,7 @@ public class SecurityService {
 		}
 		if (!hasRole) {
 			throw new EmentorApiError(
-					"Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: " + allowedRoles);
+					"Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: " + allowedRoles, 401);
 		}
 
 		return hasRole;
