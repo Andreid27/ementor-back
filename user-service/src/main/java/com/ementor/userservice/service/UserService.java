@@ -1,22 +1,32 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.service;
 
+import com.ementor.userservice.core.entity.pagination.*;
+import com.ementor.userservice.core.entity.pagination.filter.FilterGroup;
+import com.ementor.userservice.core.entity.pagination.filter.FilterOption;
+import com.ementor.userservice.core.entity.pagination.filter.FilterOptionUtils;
+import com.ementor.userservice.core.entity.pagination.filter.FilterType;
 import com.ementor.userservice.core.exceptions.EmentorApiError;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import com.ementor.userservice.core.service.JwtService;
+import com.ementor.userservice.core.service.SecurityService;
 import com.ementor.userservice.dto.*;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.RoleEnum;
 import com.ementor.userservice.repo.UsersRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,14 +35,80 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class UserService {
 	private final UsersRepo repository;
 	private final StoredRedisTokenRepo storedRedisTokenRepo;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
-
+	private final EntityManager entityManager;
+	private final SecurityService securityService;
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	public PaginatedResponse<UserGetDTO> getPaginated(PaginatedRequest request) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+		User user = securityService.getCurrentUser();
+
+		log.info("[USER-ID:{}] Getting users list - page {}", user.getId(), request.getPage());
+
+		final PaginatedRequestSpecification<User> spec = PaginatedRequestSpecificationUtils
+			.genericSpecification(request.bind(User.class), false, User.class);
+		Page<User> findAll = repository.findAll(spec, ServiceUtils.convertToPageRequest(request));
+		PaginatedResponse<UserGetDTO> paginatedResponse = new PaginatedResponse<>();
+		paginatedResponse.setData(findAll.getContent()
+			.stream()
+			.map(this::buildUserDto)
+			.toList());
+		ServiceUtils.extractPaginationMetadata(findAll, paginatedResponse);
+		paginatedResponse.setFilterOptions(filterOptions(request));
+		paginatedResponse.setCurrentRequest(request);
+		log.info("[USER-ID:{}] Got users list - page {}", user.getId(), request.getPage());
+		return paginatedResponse;
+	}
+
+	public List<FilterOption<?>> filterOptions(PaginatedRequest request) {
+		return FilterOptionUtils.createFilterOptions(entityManager, request, User.class,
+				new FilterGroup("email", FilterType.TEXT_CONTENT), new FilterGroup("role", FilterType.TEXT_OPTIONS),
+				new FilterGroup("lastName", FilterType.TEXT_CONTENT), new FilterGroup("firstName", FilterType.TEXT_CONTENT),
+				new FilterGroup("phone", FilterType.TEXT_CONTENT));
+	}
+
+	private UserGetDTO buildUserDto(User user) {
+		return UserGetDTO.builder()
+			.email(user.getEmail())
+			.lastName(user.getLastName())
+			.firstName(user.getFirstName())
+			.role(user.getRole())
+			.phone(user.getPhone())
+			.build();
+	}
+
+	public UserGetDTO get(UUID userId) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getId();
+		if (userId != null) {
+			return getUserGetDtoByUserId(userId);
+		}
+
+		return getUserGetDtoByUserId(currentUserId);
+	}
+
+	public UserGetDTO getUserGetDtoByUserId(UUID userId) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getId();
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+
+		log.info("[USER-ID: {}] Getting user with id {}.", currentUserId, userId);
+
+		User user = getUserByUserId(userId);
+		UserGetDTO userGetDTO = buildUserDto(user);
+		userGetDTO.setActive(user.getActive());
+		userGetDTO.setDisabled(user.getDisabled());
+		userGetDTO.setHasProfile(user.getHasProfile());
+
+		log.info("[USER-ID: {}] Got users with id {}.", currentUserId, userId);
+		return userGetDTO;
+	}
 
 	public AuthenticationNoProfileResponseDTO register(RegisterRequestDTO request) {
 		User savedUser = null;
@@ -73,6 +149,53 @@ public class AuthenticationService {
 			.refreshToken(refreshToken)
 			.hasProfile(false)
 			.build();
+	}
+
+	public void updateUserData(UserUpdateDTO dto) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getId();
+
+		log.info("[USER-ID: {}] Updating user profile.", currentUserId);
+
+		User user = getUserByUserId(dto.getUserId());
+		user.setPhone(dto.getPhone());
+		user.setFirstName(dto.getFirstName());
+		user.setLastName(dto.getLastName());
+
+		repository.save(user);
+
+		log.info("[USER-ID: {}] Updated  student profile.", currentUserId);
+	}
+
+	public void delete(UUID userId) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getId();
+		if (userId != null) {
+			securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+			deleteUserById(userId);
+			return;
+		}
+		deleteUserById(currentUserId);
+	}
+
+	private void deleteUserById(UUID userId) {
+		UUID currentUserId = securityService.getCurrentUser()
+			.getId();
+		log.info("[USER-ID:{}] Deleting user with id: {}", currentUserId, userId);
+
+		User user = getUserByUserId(userId);
+
+		if (user.getExpires() == null) {
+			user.setExpires(OffsetDateTime.now());
+			user.setDisabled(true);
+			user.setActive(false);
+		} else {
+			throw new EmentorApiError("Cannot delete an already deleted item!", 400);
+		}
+
+		user = repository.save(user);
+		log.info("[USER-ID:{}] Deleted workpoint with id: {}", currentUserId, user.getId());
 	}
 
 	public Object authenticate(AuthenticationRequestDTO request) {

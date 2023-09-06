@@ -33,7 +33,7 @@ public class ProfileService {
 
 	private final ProfilePictureRepo profilePictureRepo;
 
-	private final AuthenticationService userService;
+	private final UserService userService;
 
 	private final UsersRepo usersRepo;
 

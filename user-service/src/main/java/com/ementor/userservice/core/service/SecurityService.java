@@ -66,6 +66,7 @@ public class SecurityService {
 			user = (User) authentication.getPrincipal();
 		} catch (Exception e) {
 			log.error("No user in auth context. Err: {}", e.getMessage());
+			throw new EmentorApiError("No current user logged in!", 403);
 		}
 		return user;
 	}

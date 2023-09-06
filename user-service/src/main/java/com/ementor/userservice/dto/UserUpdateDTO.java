@@ -1,7 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.dto;
 
-import com.ementor.userservice.enums.RoleEnum;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,20 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserGetDTO {
-	private String email;
+public class UserUpdateDTO {
+	private UUID userId;
 
 	private String phone;
 
 	private String firstName;
 
 	private String lastName;
-
-	private RoleEnum role;
-
-	private Boolean active;
-
-	private Boolean disabled;
-
-	private Boolean hasProfile;
 }
