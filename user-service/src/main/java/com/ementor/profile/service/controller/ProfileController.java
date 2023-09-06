@@ -11,10 +11,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/profile")
@@ -49,13 +50,13 @@ public class ProfileController {
 		return ResponseEntity.ok(service.getUserProfile());
 	}
 
-	@GetMapping(value = {"/get-full", "/get-full/{id}"})
-	@Operation(summary = "Get student profile")
+	@GetMapping(value = {"/get-full", "/get-full/{userId}"})
+	@Operation(summary = "Get full student profile by user id")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public ResponseEntity<StudentProfileDTO> getFull(@PathVariable(required = false) UUID id) {
-		return ResponseEntity.ok(service.getFull(id));
+	public ResponseEntity<StudentProfileDTO> getFull(@PathVariable(required = false) UUID userId) {
+		return ResponseEntity.ok(service.getFull(userId));
 	}
 
 	@PostMapping("/create")

@@ -6,12 +6,13 @@ import com.ementor.profile.service.enums.SchoolSpecialityEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.OffsetDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -22,6 +23,8 @@ public class StudentProfileDTO {
 	private UUID id;
 
 	private UUID userId;
+
+	private UserDTO user;
 
 	private UUID pictureId;
 
@@ -56,5 +59,4 @@ public class StudentProfileDTO {
 	@Valid
 	private AddressDTO address;
 
-	private UserDTO user;
 }

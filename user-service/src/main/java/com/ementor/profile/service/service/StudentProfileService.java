@@ -19,14 +19,15 @@ import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.repo.StudentProfilesViewRepo;
 import com.ementor.profile.service.utils.ConstantUtils;
 import jakarta.persistence.EntityManager;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -122,31 +123,37 @@ public class StudentProfileService {
 		return studentProfileDTO;
 	}
 
-	public StudentProfileDTO getFull(UUID studentProfileId) {
+	public StudentProfileDTO getFull(UUID userId) {
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
 
-		if (studentProfileId != null) {
-			return getFullStudentProfile(studentProfileId);
+		if (userId != null) {
+			securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+			return getFullStudentProfile(userId);
 		}
 
 		return getFullStudentProfile(currentUserId);
 	}
 
-	private StudentProfileDTO getFullStudentProfile(UUID studentProfileId) {
+	private StudentProfileDTO getFullStudentProfile(UUID userId) {
 		User currentUser = securityService.getCurrentUser();
 
-		log.info("[USER-ID: {}] Getting student profile with id {}.", currentUser.getUserId(), studentProfileId);
+		log.info("[USER-ID: {}] Getting student profile with id {}.", currentUser.getUserId(), userId);
 
-		String userGetEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/get";
+		String userGetEndpoint;
+		if(currentUser.getUserId().equals(userId)){
+			userGetEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/get";
+		} else {
+			userGetEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/" + userId;
+		}
 		UserDTO userDTO = userServiceRest.restGetRequest(userGetEndpoint, currentUser, UserDTO.class);
-		StudentProfile studentProfile = getStudentProfileById(studentProfileId);
+		StudentProfile studentProfile = getStudentProfileByUserId(userId);
 		StudentProfileDTO studentProfileDTO = buildStudentProfileDto(studentProfile);
 		studentProfileDTO.setUserId(studentProfile.getUserId());
 		studentProfileDTO.setId(studentProfile.getId());
 		studentProfileDTO.setUser(userDTO);
 
-		log.info("[USER-ID: {}] Got student profile with id {}.", currentUser.getUserId(), studentProfileId);
+		log.info("[USER-ID: {}] Got student profile with id {}.", currentUser.getUserId(), userId);
 
 		return studentProfileDTO;
 	}
