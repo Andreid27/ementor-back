@@ -4,7 +4,6 @@ package com.ementor.userservice.core.service;
 import com.ementor.userservice.core.exceptions.EmentorApiError;
 import com.ementor.userservice.entity.User;
 import com.ementor.userservice.enums.RoleEnum;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class SecurityService {
 		}
 		if (!hasRole) {
 			throw new EmentorApiError(
-					"Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: " + allowedRoles, 401);
+					"Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: " + Arrays.stream(allowedRoles).map(Enum::name).toList(), 401);
 		}
 
 		return hasRole;
