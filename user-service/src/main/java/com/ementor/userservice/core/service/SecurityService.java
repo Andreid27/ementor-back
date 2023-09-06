@@ -53,8 +53,11 @@ public class SecurityService {
 					.anyMatch(roleName::equals));
 		}
 		if (!hasRole) {
-			throw new EmentorApiError(
-					"Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: " + Arrays.stream(allowedRoles).map(Enum::name).toList(), 401);
+			throw new EmentorApiError("Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: "
+					+ Arrays.stream(allowedRoles)
+						.map(Enum::name)
+						.toList(),
+					401);
 		}
 
 		return hasRole;
