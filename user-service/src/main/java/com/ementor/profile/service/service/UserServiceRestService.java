@@ -12,6 +12,8 @@ import com.ementor.profile.service.entity.User;
 import com.ementor.profile.service.repo.ProfilePictureRepo;
 import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.utils.ConstantUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,9 @@ public class UserServiceRestService {
 
 	private final StudentProfilesRepo studentProfilesRepo;
 
+	private String keepAlive = "keep-alive";
+	private String tokenNotFoundErrorMessage = "Token not found. Check if it is last token or valid token.";
+
 	public void sendProfilePictureThumbnail() {
 		User user = securityService.getCurrentUser();
 		ProfilePicture profilePicture = getImageByUserId(user.getUserId());
@@ -50,7 +55,7 @@ public class UserServiceRestService {
 			throw new EmentorApiError("Could not get bytes of data. Either cannot save or cannot compress.", 404);
 		}
 		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
-			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is last token or valid token.", 403));
+			.orElseThrow(() -> new EmentorApiError(tokenNotFoundErrorMessage, 403));
 		if (storedRedisToken.getToken() == null) {
 			log.error("StoredRedisToken error: Token not found for user [{}]", user.getUserId());
 			return;
@@ -126,10 +131,10 @@ public class UserServiceRestService {
 			Class<T> responseType) {
 		// Create an HttpHeaders object and set the headers from the map
 		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
-			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is last token or valid token.", 403));
+			.orElseThrow(() -> new EmentorApiError(tokenNotFoundErrorMessage, 403));
 
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setConnection("keep-alive");
+		httpHeaders.setConnection(keepAlive);
 		httpHeaders.setBearerAuth(storedRedisToken.getToken());
 
 		// Create an HttpEntity object and pass the HttpHeaders object
@@ -139,6 +144,72 @@ public class UserServiceRestService {
 		// HttpEntity object, and the response type as parameters
 		RestTemplate restTemplate = restTemplateBuilder.build();
 		ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, responseType);
+
+		// Return the response body by calling the getBody method
+		return response.getBody();
+	}
+
+	public <T> T restPostRequest(Object requestObject,
+			String url,
+			User user,
+			Class<T> responseType) {
+		// Create an HttpHeaders object and set the headers from the map
+		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
+			.orElseThrow(() -> new EmentorApiError(tokenNotFoundErrorMessage, 403));
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setConnection(keepAlive);
+		httpHeaders.setBearerAuth(storedRedisToken.getToken());
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+		String requestJson;
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			requestJson = objectMapper.writeValueAsString(requestObject);
+		} catch (JsonProcessingException e) {
+			throw new EmentorApiError("Failed to convert requestObject to JSON.", 415);
+		}
+
+		// Create an HttpEntity with the JSON payload
+		HttpEntity<String> request = new HttpEntity<>(requestJson, httpHeaders);
+		// Use the exchange method and pass the URL, the HTTP method, the
+		// HttpEntity object, and the response type as parameters
+		RestTemplate restTemplate = restTemplateBuilder.build();
+		ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.POST, request, responseType);
+
+		// Return the response body by calling the getBody method
+		return response.getBody();
+	}
+
+	public <T> T restPutRequest(Object requestObject,
+			String url,
+			User user,
+			Class<T> responseType) {
+		// Create an HttpHeaders object and set the headers from the map
+		StoredRedisToken storedRedisToken = storedRedisTokenService.getStoredRedisToken(user.getUsername())
+			.orElseThrow(() -> new EmentorApiError("Token not found. Check if it is the last token or a valid token.", 403));
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setConnection(keepAlive);
+		httpHeaders.setBearerAuth(storedRedisToken.getToken());
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+		// Convert requestObject to JSON using ObjectMapper
+		String requestJson;
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			requestJson = objectMapper.writeValueAsString(requestObject);
+		} catch (JsonProcessingException e) {
+			throw new EmentorApiError("Failed to convert requestObject to JSON.", 415);
+		}
+
+		// Create an HttpEntity with the JSON payload
+		HttpEntity<String> request = new HttpEntity<>(requestJson, httpHeaders);
+
+		// Use the exchange method and pass the URL, the HTTP method, the
+		// HttpEntity object, and the response type as parameters
+		RestTemplate restTemplate = restTemplateBuilder.build();
+		ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.PUT, request, responseType);
 
 		// Return the response body by calling the getBody method
 		return response.getBody();

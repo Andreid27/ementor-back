@@ -2,6 +2,8 @@
 package com.ementor.profile.service.dto;
 
 import com.ementor.profile.service.enums.RoleEnum;
+import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +13,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class UserDTO implements Serializable {
+
+	private UUID userId;
+
 	private String email;
 
 	private String firstName;
 
 	private String lastName;
+
+	private String phone;
 
 	private RoleEnum role;
 

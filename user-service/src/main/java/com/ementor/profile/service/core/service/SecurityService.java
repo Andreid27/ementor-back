@@ -4,12 +4,11 @@ package com.ementor.profile.service.core.service;
 import com.ementor.profile.service.core.exceptions.EmentorApiError;
 import com.ementor.profile.service.entity.User;
 import com.ementor.profile.service.enums.RoleEnum;
+import java.util.Arrays;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
 
 @Service
 public class SecurityService {
@@ -49,8 +48,8 @@ public class SecurityService {
 		if (!hasRole) {
 			throw new EmentorApiError("Current user: {" + getCurrentUser().getEmail() + "} does not have  any role: "
 					+ Arrays.stream(allowedRoles)
-					.map(Enum::name)
-					.toList(),
+						.map(Enum::name)
+						.toList(),
 					401);
 		}
 

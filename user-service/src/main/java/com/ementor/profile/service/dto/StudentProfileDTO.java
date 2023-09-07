@@ -6,13 +6,12 @@ import com.ementor.profile.service.enums.SchoolSpecialityEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Data
 @Builder

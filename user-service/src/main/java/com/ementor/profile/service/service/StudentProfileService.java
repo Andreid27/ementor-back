@@ -19,15 +19,14 @@ import com.ementor.profile.service.repo.StudentProfilesRepo;
 import com.ementor.profile.service.repo.StudentProfilesViewRepo;
 import com.ementor.profile.service.utils.ConstantUtils;
 import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -123,6 +122,7 @@ public class StudentProfileService {
 		return studentProfileDTO;
 	}
 
+	@Transactional
 	public StudentProfileDTO getFull(UUID userId) {
 		UUID currentUserId = securityService.getCurrentUser()
 			.getUserId();
@@ -141,12 +141,14 @@ public class StudentProfileService {
 		log.info("[USER-ID: {}] Getting student profile with id {}.", currentUser.getUserId(), userId);
 
 		String userGetEndpoint;
-		if(currentUser.getUserId().equals(userId)){
+		if (currentUser.getUserId()
+			.equals(userId)) {
 			userGetEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/get";
 		} else {
 			userGetEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/" + userId;
 		}
 		UserDTO userDTO = userServiceRest.restGetRequest(userGetEndpoint, currentUser, UserDTO.class);
+
 		StudentProfile studentProfile = getStudentProfileByUserId(userId);
 		StudentProfileDTO studentProfileDTO = buildStudentProfileDto(studentProfile);
 		studentProfileDTO.setUserId(studentProfile.getUserId());
@@ -208,19 +210,23 @@ public class StudentProfileService {
 			.build();
 	}
 
+	@Transactional
 	public void updateStudentProfile(StudentProfileDTO dto) {
 		securityService.hasAnyRole(RoleEnum.STUDENT);
-		UUID currentUserId = securityService.getCurrentUser()
-			.getUserId();
+		User currentUser = securityService.getCurrentUser();
 
-		log.info("[USER-ID: {}] Updating  student profile.", currentUserId);
+		log.info("[USER-ID: {}] Updating  student profile.", currentUser.getUserId());
 
-		StudentProfile studentProfile = buildUpdateStudentProfile(dto, currentUserId);
+		StudentProfile studentProfile = buildUpdateStudentProfile(dto, currentUser.getUserId());
 		studentProfile.setId(dto.getId());
-
 		studentProfilesRepo.save(studentProfile);
 
-		log.info("[USER-ID: {}] Updated  student profile.", currentUserId);
+		String userPutEndpoint = ConstantUtils.USER_SERVICE_PROD_URL + "/user/update";
+		UserDTO userDTO = dto.getUser();
+		userDTO.setUserId(currentUser.getUserId());
+		userServiceRest.restPutRequest(userDTO, userPutEndpoint, currentUser, Object.class);
+
+		log.info("[USER-ID: {}] Updated  student profile.", currentUser.getUserId());
 	}
 
 	private StudentProfile buildUpdateStudentProfile(StudentProfileDTO dto,
@@ -232,6 +238,8 @@ public class StudentProfileService {
 			.desiredUniversity(universityService.getUniversity(dto.getUniversityId()))
 			.desiredSpeciality(specialityService.getSpeciality(dto.getSpecialityId()))
 			.school(dto.getSchool())
+			.schoolDomain(dto.getSchoolDomain())
+			.schoolSpeciality(dto.getSchoolSpeciality())
 			.schoolGrade(dto.getSchoolGrade())
 			.address(addressService.updateAddress(dto.getAddress()))
 			.build();
