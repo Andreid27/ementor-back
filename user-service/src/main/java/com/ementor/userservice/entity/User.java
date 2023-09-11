@@ -4,6 +4,7 @@ package com.ementor.userservice.entity;
 import com.ementor.userservice.core.entity.CommonEntity;
 import com.ementor.userservice.enums.RoleEnum;
 import jakarta.persistence.*;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -90,6 +91,10 @@ public class User extends CommonEntity implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
+		if (expires != null) {
+			return expires.isAfter(OffsetDateTime.now());
+		}
+
 		return true;
 	}
 

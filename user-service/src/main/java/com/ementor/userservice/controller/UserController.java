@@ -65,7 +65,7 @@ public class UserController {
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public void delete(@PathVariable UUID userId) {
+	public void delete(@PathVariable(required = false) UUID userId) {
 		service.delete(userId);
 	}
 

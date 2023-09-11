@@ -207,6 +207,9 @@ public class UserService {
 		String refreshToken = jwtService.generateRefreshToken(storedUser);
 		revokeAllUserTokens(storedUser);
 		saveUserToken(storedUser, jwtToken);
+		if (Boolean.TRUE.equals(!storedUser.getActive() || storedUser.getDisabled()) || !storedUser.isAccountNonExpired()) {
+			throw new EmentorApiError("User disabled or non activated. Please contact the administrator.", 401);
+		}
 
 		boolean hasProfile = storedUser.getHasProfile();
 		if (!hasProfile) {
