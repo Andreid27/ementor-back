@@ -145,6 +145,7 @@ public class UserService {
 				.lastName(user.getLastName())
 				.email(user.getEmail())
 				.role(user.getRole())
+				.hasProfile(user.getHasProfile())
 				.build())
 			.refreshToken(refreshToken)
 			.hasProfile(false)
@@ -211,21 +212,6 @@ public class UserService {
 			throw new EmentorApiError("User disabled or non activated. Please contact the administrator.", 401);
 		}
 
-		boolean hasProfile = storedUser.getHasProfile();
-		if (!hasProfile) {
-			return AuthenticationNoProfileResponseDTO.builder()
-				.accessToken(jwtToken)
-				.refreshToken(refreshToken)
-				.userData(UserGetDTO.builder()
-					.firstName(storedUser.getFirstName())
-					.lastName(storedUser.getLastName())
-					.email(storedUser.getEmail())
-					.role(storedUser.getRole())
-					.build())
-				.hasProfile(false)
-				.build();
-		}
-
 		return AuthenticationResponseDTO.builder()
 			.accessToken(jwtToken)
 			.refreshToken(refreshToken)
@@ -234,6 +220,7 @@ public class UserService {
 				.lastName(storedUser.getLastName())
 				.email(storedUser.getEmail())
 				.role(storedUser.getRole())
+				.hasProfile(storedUser.getHasProfile() != true ? false : null)
 				.build())
 			.build();
 	}
