@@ -11,7 +11,8 @@ import jakarta.persistence.PreUpdate;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-
+import lombok.Data;
+@Data
 @MappedSuperclass
 public class CommonEntity implements Serializable {
 	private static final long serialVersionUID = 2747996778508770388L;

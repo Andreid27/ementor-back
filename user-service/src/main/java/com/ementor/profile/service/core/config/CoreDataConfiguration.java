@@ -1,6 +1,8 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.profile.service.core.config;
 
+import static com.ementor.profile.service.utils.ConstantUtils.SERVICE_NAME;
+
 import com.ementor.profile.service.entity.User;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.Objects;
@@ -20,7 +22,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableJpaRepositories(
-	basePackages = "com.ementor.core.repo",
+	basePackages = "com.ementor." + SERVICE_NAME + ".repo",
 	entityManagerFactoryRef = "coreEntityManagerFactory",
 	transactionManagerRef = "coreTransactionManager")
 public class CoreDataConfiguration {
