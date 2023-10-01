@@ -4,13 +4,22 @@ package com.ementor.core.utils;
 //SET HERE WHEN MODIFIED
 
 public class ConstantUtils {
-	public static final String RedisHashName = "StoredRedisToken";
+	private ConstantUtils() {
+	}
+	public static final String REDIS_HASH_NAME = "StoredRedisToken";
 
-	public static final long port = 49200;
-	public static final String localEnvUrl = "http://localhost:" + port;
+	// what is after com.ementor.
+	public static final String SERVICE_NAME = "core";
 
-	public static final String productionHost = "http://api.ementor.dinca.one";
+	public static final long PORT = 49200;
 
-	public static final String productionService = "service1";
-	public static final String productionEnvUrl = productionHost + "/" + productionService;
+	public static final String LOCAL_ENV_URL = "http://localhost:" + PORT;
+
+	public static final String PRODUCTION_HOST = "https://api.e-mentor.ro";
+
+	public static final String PRODUCTION_SERVICE = "service0";
+
+	public static final String PRODUCTION_ENV_URL = PRODUCTION_HOST + "/" + PRODUCTION_SERVICE;
+
+	public static final String USER_SERVICE_PROD_URL = PRODUCTION_HOST + "/service2";
 }
