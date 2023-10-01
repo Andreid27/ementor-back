@@ -4,6 +4,7 @@ package com.ementor.userservice.entity;
 import com.ementor.userservice.core.entity.CommonEntity;
 import com.ementor.userservice.enums.RoleEnum;
 import jakarta.persistence.*;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -37,9 +38,15 @@ public class User extends CommonEntity implements UserDetails {
 	@Column(name = "phone")
 	private String phone;
 
+	@Column(name = "active")
 	private Boolean active;
 
+	@Column(name = "disabled")
 	private Boolean disabled;
+
+	@Column(name = "hasProfile")
+	private Boolean hasProfile;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "user_role")
 	private RoleEnum role;
@@ -84,6 +91,10 @@ public class User extends CommonEntity implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
+		if (expires != null) {
+			return expires.isAfter(OffsetDateTime.now());
+		}
+
 		return true;
 	}
 

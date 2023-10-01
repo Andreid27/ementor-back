@@ -20,8 +20,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
 		version = "1.0",
 		license = @License(name = "Toate drepturile rezervare @E-mentor app", url = "http://dinca.one/"),
 		termsOfService = "Terms of service"),
-	servers = {@Server(description = "Local ENV", url = ConstantUtils.localEnvUrl),
-			@Server(description = "PROD ENV", url = ConstantUtils.productionEnvUrl)},
+	servers = {@Server(description = "Local ENV", url = ConstantUtils.LOCAL_ENV_URL),
+			@Server(description = "PROD ENV", url = ConstantUtils.PRODUCTION_ENV_URL)},
 	security = {@SecurityRequirement(name = "Bearer Token Scheme - JWT Tokens")})
 @SecurityScheme(
 	name = "Bearer Token Scheme - JWT Tokens",

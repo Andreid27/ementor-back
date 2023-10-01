@@ -24,14 +24,14 @@ public class RedisCleanUpService {
 		SetOperations<String, String> setOps = stringRedisTemplate.opsForSet();
 
 		// Get all the members of the set
-		Set<String> members = setOps.members(ConstantUtils.RedisHashName);
+		Set<String> members = setOps.members(ConstantUtils.STORED_REDIS_TOKEN);
 
 		// Loop through each member
 		for (String member : members) {
 			// Check if the corresponding key exists
-			if (!stringRedisTemplate.hasKey(ConstantUtils.RedisHashName + ":" + member)) {
+			if (Boolean.FALSE.equals(stringRedisTemplate.hasKey(ConstantUtils.STORED_REDIS_TOKEN + ":" + member))) {
 				// Remove the member from the set
-				setOps.remove(ConstantUtils.RedisHashName, member);
+				setOps.remove(ConstantUtils.STORED_REDIS_TOKEN, member);
 			}
 		}
 	}

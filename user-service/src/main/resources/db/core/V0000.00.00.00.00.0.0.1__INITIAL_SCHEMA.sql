@@ -15,6 +15,7 @@ begin
 		user_role varchar(14) not null,
 		disabled bool not null,
 		active bool not null,
+		hasProfile bool not null,
 		creation timestamptz not null,
 		modified timestamptz null,
 		expires timestamptz null,
@@ -24,10 +25,11 @@ begin
 	);
 
 	root_user_id := gen_random_uuid ();
-	insert into users (id, email, first_name, last_name, creation, password,phone ,user_role, active, disabled)
-		values (root_user_id, 'admin@test.com', 'admin', 'admin', now(), '$2a$10$P0zFzsVuduPyn0K9KubDDO6lOWN1Eu/WCI5Msm6.ypqdUVdnRLS..','0774688660','ADMIN', true, false),
-		(gen_random_uuid(), 'professor@test.com', 'professor', 'professor', now(), '$2a$10$YhVfNEeqR7ZQTs0pJTR/AeYoCDeS8bUgcHBEwTaQxJDxWOu6lsvmy','0774688661','PROFESSOR', true, false),
-		(gen_random_uuid(), 'student@test.com', 'student', 'student', now(), '$2a$10$2sqsJRS36JD4hELWbhCBtuaxn/sGxk/zztDI3hF9AwXY/T0Czr/Sy','0774688662','STUDENT', true, false);
+	insert into users (id, email, first_name, last_name, creation, password,phone ,user_role, active, disabled,hasProfile)
+		values (root_user_id, 'admin@dinca.co', 'admin', 'admin', now(), '$2a$10$P0zFzsVuduPyn0K9KubDDO6lOWN1Eu/WCI5Msm6.ypqdUVdnRLS..','0774688660','ADMIN', true, false, true),
+		(gen_random_uuid(), 'professor@dinca.co', 'professor', 'professor', now(), '$2a$10$YhVfNEeqR7ZQTs0pJTR/AeYoCDeS8bUgcHBEwTaQxJDxWOu6lsvmy','0774688661','PROFESSOR', true, false, true),
+		('eff2d861-d4a8-4b40-bc5e-71f21080da5d', 'angie@dinca.co', 'Enache', 'Angie-Maria', now(), '$2a$10$YhVfNEeqR7ZQTs0pJTR/AeYoCDeS8bUgcHBEwTaQxJDxWOu6lsvmy','+40720464201','PROFESSOR', true, false, true),
+		(gen_random_uuid(), 'student@e-mentor.ro', 'student', 'student', now(), '$2a$10$2sqsJRS36JD4hELWbhCBtuaxn/sGxk/zztDI3hF9AwXY/T0Czr/Sy','0774688662','STUDENT', true, false,true);
 
 END
 $body$ language plpgsql;

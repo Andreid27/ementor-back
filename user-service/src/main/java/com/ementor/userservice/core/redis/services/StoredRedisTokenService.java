@@ -4,7 +4,6 @@ package com.ementor.userservice.core.redis.services;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.repo.StoredRedisTokenRepo;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ public class StoredRedisTokenService {
 			.id(userDetails.getUsername())
 			.token(token)
 			.revoked(false)
-			.userId(UUID.randomUUID()) // TODO "later to be added if needed"
 			.build();
 		saveStoredRedisToken(storedRedisToken);
 	}
