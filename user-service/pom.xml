@@ -10,7 +10,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ementor</groupId>
-	<artifactId>core-service</artifactId>
+	<artifactId>quiz-service</artifactId>
 	<version>0.0.1-beta1</version>
 	<name>core-service</name>
 	<description>core-service</description>
