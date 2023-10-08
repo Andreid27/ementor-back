@@ -1,13 +1,10 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.quiz.repo;
 
-import com.ementor.quiz.entity.Chapter;
-import java.util.List;
+import com.ementor.quiz.entity.QuizzesView;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface ChaptersRepo extends JpaRepository<Chapter, UUID>, JpaSpecificationExecutor<Chapter> {
-
-	List<Chapter> findAllByIdIn(List<UUID> chaptersIds);
+public interface QuizzesViewRepo extends JpaRepository<QuizzesView, UUID>, JpaSpecificationExecutor<QuizzesView> {
 }

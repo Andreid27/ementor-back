@@ -2,10 +2,12 @@
 package com.ementor.quiz.repo;
 
 import com.ementor.quiz.entity.Question;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface QuestionsRepo extends JpaRepository<Question, UUID>, JpaSpecificationExecutor<Question> {
 
+	List<Question> findAllByIdIn(List<UUID> questionsIds);
 }

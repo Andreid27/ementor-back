@@ -14,16 +14,15 @@ import com.ementor.quiz.entity.User;
 import com.ementor.quiz.enums.RoleEnum;
 import com.ementor.quiz.repo.QuestionsRepo;
 import jakarta.persistence.EntityManager;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -143,7 +142,7 @@ public class QuestionsService {
 		securityService.hasAnyRole(RoleEnum.PROFESSOR);
 
 		UUID currentUserId = securityService.getCurrentUser()
-				.getUserId();
+			.getUserId();
 
 		log.info("[USER-ID: {}] Deleting  question with id {}.", currentUserId, questionId);
 
@@ -154,8 +153,12 @@ public class QuestionsService {
 		log.info("[USER-ID: {}] Deleted  question with id {}.", currentUserId, questionId);
 	}
 
-	private Question getQuestionById(UUID questionId) {
+	public Question getQuestionById(UUID questionId) {
 		return questionsRepo.findById(questionId)
 			.orElseThrow(() -> new EmentorApiError("Question not found", 404));
+	}
+
+	public List<Question> getQuestionsByIds(List<UUID> questionsIds) {
+		return questionsRepo.findAllByIdIn(questionsIds);
 	}
 }
