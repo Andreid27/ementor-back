@@ -10,17 +10,20 @@ import com.ementor.quiz.dto.QuizDTO;
 import com.ementor.quiz.entity.*;
 import com.ementor.quiz.enums.RoleEnum;
 import com.ementor.quiz.repo.QuizzesRepo;
+import com.ementor.quiz.repo.QuizzesStudentsRepo;
 import com.ementor.quiz.repo.QuizzesViewRepo;
 import jakarta.persistence.EntityManager;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,8 @@ public class QuizzesService {
 	private final QuizzesRepo quizzesRepo;
 
 	private final QuizzesViewRepo quizzesViewRepo;
+
+	private final QuizzesStudentsRepo quizzesStudentsRepo;
 
 	public PaginatedResponse<QuizzesView> getPaginated(PaginatedRequest request) {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
@@ -70,7 +75,7 @@ public class QuizzesService {
 	}
 
 	public QuizDTO getQuiz(UUID quizId) {
-		securityService.hasAnyRole(RoleEnum.PROFESSOR);
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
 
 		User currentUser = securityService.getCurrentUser();
 
@@ -81,7 +86,7 @@ public class QuizzesService {
 
 		log.info("[USER-ID: {}] Got quiz.", currentUser.getUserId());
 
-		return QuizDTO.builder()
+		QuizDTO quizDTO = QuizDTO.builder()
 			.id(quiz.getId())
 			.title(quiz.getTitle())
 			.description(quiz.getDescription())
@@ -89,9 +94,17 @@ public class QuizzesService {
 			.difficultyLevel(quiz.getDifficultyLevel())
 			.maxTime(quiz.getMaxTime())
 			.chapters(chapterDTOList)
-			.questions(questionDTOList)
 			.createdBy(quiz.getCreatedBy())
 			.build();
+
+		if (currentUser.getRole()
+			.equals(RoleEnum.STUDENT)) {
+			return quizDTO;
+		}
+
+		quizDTO.setQuestions(questionDTOList);
+
+		return quizDTO;
 	}
 
 	private List<ChapterDTO> buildChaptersDtoList(List<Chapter> chapters,
@@ -219,6 +232,64 @@ public class QuizzesService {
 
 		log.info("[USER-ID: {}] Deleted quiz with id {}.", currentUserId, quizId);
 	}
+
+	public QuizDTO startQuiz(UUID quizId) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.STUDENT);
+
+		User currentUser = securityService.getCurrentUser();
+
+		log.info("[USER-ID: {}] Starting quiz.", currentUser.getUserId());
+		List<QuizStudent> quizStudents = quizzesStudentsRepo.findAllByUserId(currentUser.getUserId());
+
+		Optional<QuizStudent> quizStudent = quizStudents.stream()
+			.filter(quizStudentElement -> quizStudentElement.getQuizId()
+				.equals(quizId))
+			.findFirst();
+
+		if (quizStudent.isEmpty()) {
+			log.error("Student does not have access to this test.");
+			throw new EmentorApiError("Student does not have access to this test.", 404);
+		}
+
+		if (quizStudent.get()
+			.getStartAt() != null) {
+			log.error("Student does not have access to this test. It already has been started.");
+			throw new EmentorApiError("Student does not have access to this test. It already has been started.", 401);
+		}
+
+		Quiz quiz = getQuizById(quizId);
+		List<ChapterDTO> chapterDTOList = buildChaptersDtoList(quiz.getChapters(), currentUser);
+		List<QuestionDTO> questionDTOList = buildQuestionDtoList(quiz.getQuestions(), currentUser);
+
+		QuizStudent quizStudentToUpdate = quizStudent.get();
+
+		quizStudentToUpdate.setStartAt(OffsetDateTime.now());
+		OffsetDateTime timeShouldEnd = OffsetDateTime.now()
+			.plusMinutes(quiz.getMaxTime());
+
+        //TODO implement base64 encoding for http transfer
+
+		QuizDTO quizDTO = QuizDTO.builder()
+			.id(quiz.getId())
+			.title(quiz.getTitle())
+			.description(quiz.getDescription())
+			.componentType(quiz.getComponentType())
+			.difficultyLevel(quiz.getDifficultyLevel())
+			.maxTime(quiz.getMaxTime())
+			.chapters(chapterDTOList)
+			.questions(questionDTOList)
+			.endTime(timeShouldEnd)
+			.createdBy(quiz.getCreatedBy())
+			.build();
+
+		quizStudentToUpdate.setEndTime(timeShouldEnd.plusMinutes(3));
+		quizzesStudentsRepo.save(quizStudentToUpdate);
+
+		log.info("[USER-ID: {}] Started quiz.", currentUser.getUserId());
+
+		return quizDTO;
+	}
+
 	public Quiz getQuizById(UUID quizId) {
 		return quizzesRepo.findById(quizId)
 			.orElseThrow(() -> new EmentorApiError("Quiz not found", 404));

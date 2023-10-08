@@ -73,5 +73,22 @@ begin
       PRIMARY KEY (quiz_id, question_id)
     );
 
+    drop table if exists quizzes_students;
+    CREATE TABLE quizzes_students (
+        id uuid not null,
+        quiz_id uuid NOT NULL,
+        user_id uuid NOT NULL,
+        created_by uuid null,
+        started_at timestamptz null,
+        end_time timestamptz null,
+        ended_time timestamptz null,
+        correct_answers int4 null,
+        creation timestamptz null,
+        modified timestamptz null,
+        expires timestamptz null,
+       CONSTRAINT quiz_student_quiz_id_fkey2 FOREIGN KEY (quiz_id) REFERENCES quizzes(id),
+       PRIMARY KEY (id)
+    );
+
 END
 $body$ language plpgsql;

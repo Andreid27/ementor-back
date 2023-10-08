@@ -5,6 +5,7 @@ import com.ementor.quiz.enums.QuizComponentType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,8 @@ public class QuizDTO {
 
 	List<UUID> questionsId;
 	List<QuestionDTO> questions;
+
+	OffsetDateTime endTime;
 
 	private UUID createdBy;
 }

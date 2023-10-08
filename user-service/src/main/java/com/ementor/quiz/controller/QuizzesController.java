@@ -66,4 +66,13 @@ public class QuizzesController {
 	public void delete(@PathVariable UUID id) {
 		service.delete(id);
 	}
+
+	@GetMapping("/start-quiz/{id}")
+	@Operation(summary = "Get quiz by id")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<QuizDTO> start(@PathVariable UUID id) {
+		return ResponseEntity.ok(service.startQuiz(id));
+	}
 }
