@@ -14,15 +14,16 @@ import com.ementor.quiz.entity.User;
 import com.ementor.quiz.enums.RoleEnum;
 import com.ementor.quiz.repo.QuestionsRepo;
 import jakarta.persistence.EntityManager;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class QuestionsService {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
 		User user = securityService.getCurrentUser();
 
-		log.info("[USER-ID:{}] Getting student profiles list - page {}", user.getUserId(), request.getPage());
+		log.info("[USER-ID:{}] Getting questions list - page {}", user.getUserId(), request.getPage());
 
 		final PaginatedRequestSpecification<Question> spec = PaginatedRequestSpecificationUtils
 			.genericSpecification(request.bind(Question.class), false, Question.class);
@@ -51,7 +52,7 @@ public class QuestionsService {
 		ServiceUtils.extractPaginationMetadata(findAll, paginatedResponse);
 		paginatedResponse.setFilterOptions(filterOptions(request));
 		paginatedResponse.setCurrentRequest(request);
-		log.info("[USER-ID:{}] Got student profiles list - page {}", user.getUserId(), request.getPage());
+		log.info("[USER-ID:{}] Got questions list - page {}", user.getUserId(), request.getPage());
 		return paginatedResponse;
 	}
 
@@ -138,16 +139,11 @@ public class QuestionsService {
 		log.info("[USER-ID: {}] Updated  question.", currentUserId);
 	}
 
-	private Question getQuestionById(UUID questionId) {
-		return questionsRepo.findById(questionId)
-			.orElseThrow(() -> new EmentorApiError("Question not found", 404));
-	}
-
 	public void delete(UUID questionId) {
 		securityService.hasAnyRole(RoleEnum.PROFESSOR);
 
 		UUID currentUserId = securityService.getCurrentUser()
-			.getUserId();
+				.getUserId();
 
 		log.info("[USER-ID: {}] Deleting  question with id {}.", currentUserId, questionId);
 
@@ -156,5 +152,10 @@ public class QuestionsService {
 		questionsRepo.save(question);
 
 		log.info("[USER-ID: {}] Deleted  question with id {}.", currentUserId, questionId);
+	}
+
+	private Question getQuestionById(UUID questionId) {
+		return questionsRepo.findById(questionId)
+			.orElseThrow(() -> new EmentorApiError("Question not found", 404));
 	}
 }

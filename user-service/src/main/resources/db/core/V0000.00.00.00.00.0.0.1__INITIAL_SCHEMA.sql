@@ -26,5 +26,19 @@ begin
                            expires timestamptz null,
                            constraint questions_pkey primary key (id)
     );
+
+    drop table if exists chapters;
+    create table chapters (
+                           id uuid not null default gen_random_uuid (),
+                           title varchar(200) not null,
+                           description varchar(300) null,
+                           created_by uuid null,
+                           creation timestamptz null,
+                           modified timestamptz null,
+                           expires timestamptz null,
+                           constraint chapters_pkey primary key (id)
+    );
+
+
 END
 $body$ language plpgsql;
