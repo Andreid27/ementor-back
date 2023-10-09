@@ -75,4 +75,14 @@ public class QuizzesController {
 	public ResponseEntity<QuizDTO> start(@PathVariable UUID id) {
 		return ResponseEntity.ok(service.startQuiz(id));
 	}
+
+
+	@PostMapping("/submit-quiz")
+	@Operation(summary = "Create a new quiz.")
+	@ApiResponses(
+			value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+					@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public void create(@RequestBody @Valid QuizDTO dto) {
+		service.create(dto);
+	}
 }
