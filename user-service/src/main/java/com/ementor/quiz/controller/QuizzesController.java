@@ -4,6 +4,7 @@ package com.ementor.quiz.controller;
 import com.ementor.quiz.core.entity.pagination.PaginatedRequest;
 import com.ementor.quiz.core.entity.pagination.PaginatedResponse;
 import com.ementor.quiz.dto.QuizDTO;
+import com.ementor.quiz.dto.SubmitQuizDTO;
 import com.ementor.quiz.entity.QuizzesView;
 import com.ementor.quiz.service.QuizzesService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,7 +69,7 @@ public class QuizzesController {
 	}
 
 	@GetMapping("/start-quiz/{id}")
-	@Operation(summary = "Get quiz by id")
+	@Operation(summary = "Start quiz by id")
 	@ApiResponses(
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
@@ -76,13 +77,12 @@ public class QuizzesController {
 		return ResponseEntity.ok(service.startQuiz(id));
 	}
 
-
 	@PostMapping("/submit-quiz")
-	@Operation(summary = "Create a new quiz.")
+	@Operation(summary = "Submit a quiz.")
 	@ApiResponses(
-			value = {@ApiResponse(responseCode = "200", description = "Request successful"),
-					@ApiResponse(responseCode = "400", description = "Invalid request")})
-	public void create(@RequestBody @Valid QuizDTO dto) {
-		service.create(dto);
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<SubmitQuizDTO> submit(@RequestBody @Valid SubmitQuizDTO dto) {
+		return ResponseEntity.ok(service.submit(dto));
 	}
 }

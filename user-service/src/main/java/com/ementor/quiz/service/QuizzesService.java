@@ -4,14 +4,13 @@ package com.ementor.quiz.service;
 import com.ementor.quiz.core.entity.pagination.*;
 import com.ementor.quiz.core.exceptions.EmentorApiError;
 import com.ementor.quiz.core.service.SecurityService;
-import com.ementor.quiz.dto.ChapterDTO;
-import com.ementor.quiz.dto.QuestionDTO;
-import com.ementor.quiz.dto.QuizDTO;
+import com.ementor.quiz.dto.*;
 import com.ementor.quiz.entity.*;
 import com.ementor.quiz.enums.RoleEnum;
 import com.ementor.quiz.repo.QuizzesRepo;
 import com.ementor.quiz.repo.QuizzesStudentsRepo;
 import com.ementor.quiz.repo.QuizzesViewRepo;
+import com.ementor.quiz.repo.UsersAnswersRepo;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -21,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +40,10 @@ public class QuizzesService {
 	private final QuizzesViewRepo quizzesViewRepo;
 
 	private final QuizzesStudentsRepo quizzesStudentsRepo;
+
+	private final UsersAnswersRepo usersAnswersRepo;
+
+	private static final String STUDENT_FORBIDDEN = "Student does not have access to this test.";
 
 	public PaginatedResponse<QuizzesView> getPaginated(PaginatedRequest request) {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
@@ -247,14 +248,14 @@ public class QuizzesService {
 			.findFirst();
 
 		if (quizStudent.isEmpty()) {
-			log.error("Student does not have access to this test.");
-			throw new EmentorApiError("Student does not have access to this test.", 404);
+			log.error(STUDENT_FORBIDDEN);
+			throw new EmentorApiError(STUDENT_FORBIDDEN, 404);
 		}
 
 		if (quizStudent.get()
 			.getStartAt() != null) {
-			log.error("Student does not have access to this test. It already has been started.");
-			throw new EmentorApiError("Student does not have access to this test. It already has been started.", 401);
+			log.error("Student does not have access to this test.It already has been started.");
+			throw new EmentorApiError("Student does not have access to this test.It already has been started.", 401);
 		}
 
 		Quiz quiz = getQuizById(quizId);
@@ -267,7 +268,7 @@ public class QuizzesService {
 		OffsetDateTime timeShouldEnd = OffsetDateTime.now()
 			.plusMinutes(quiz.getMaxTime());
 
-        //TODO implement base64 encoding for http transfer
+		// TODO implement base64 encoding for http transfer
 
 		QuizDTO quizDTO = QuizDTO.builder()
 			.id(quiz.getId())
@@ -288,6 +289,119 @@ public class QuizzesService {
 		log.info("[USER-ID: {}] Started quiz.", currentUser.getUserId());
 
 		return quizDTO;
+	}
+
+	public SubmitQuizDTO submit(SubmitQuizDTO dto) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.STUDENT);
+
+		// TODO refactor this method
+
+		User currentUser = securityService.getCurrentUser();
+
+		log.info("[USER-ID: {}] Submitting quiz.", currentUser.getUserId());
+		List<QuizStudent> quizStudents = quizzesStudentsRepo.findAllByUserId(currentUser.getUserId());
+
+		// TODO move this to quiz_attempts create a new entity(with fk on
+		// quiz_students and let them multiple attempts)
+		Optional<QuizStudent> quizStudentOptional = quizStudents.stream()
+			.filter(quizStudentElement -> quizStudentElement.getQuizId()
+				.equals(dto.getQuizId()))
+			.findFirst();
+
+		if (quizStudentOptional.isEmpty()) {
+			log.error(STUDENT_FORBIDDEN);
+			throw new EmentorApiError(STUDENT_FORBIDDEN, 404);
+		}
+
+		if (quizStudentOptional.get()
+			.getStartAt() == null) {
+			log.error("Student does not have access to this test. It never has been started.");
+			throw new EmentorApiError("Student does not have access to this test. It never has been started.", 404);
+		}
+		QuizStudent quizStudent = quizStudentOptional.get();
+		quizStudent.setEndedTime(OffsetDateTime.now());
+
+		Quiz quiz = getQuizById(quizStudent.getQuizId());
+		List<UserAnswer> usersAnswers = getUsersAnswersAndCorrect(dto.getSubmitedQuestionAnswers(), quiz, currentUser);
+
+		Integer correctCount = countCorrectAnswers(usersAnswers);
+		quizStudent.setCorrectAnswers(correctCount);
+
+		quizzesStudentsRepo.save(quizStudent);
+		usersAnswersRepo.saveAll(usersAnswers);
+
+		List<ChapterDTO> chapterDTOList = buildChaptersDtoList(quiz.getChapters(), currentUser);
+		List<QuestionDTO> questionDTOList = buildQuestionDtoList(quiz.getQuestions(), currentUser);
+		OffsetDateTime timeShouldEnd = OffsetDateTime.now()
+			.plusMinutes(quiz.getMaxTime());
+
+		List<SubmitedQuestionAnswer> correctAnswers = usersAnswers.stream()
+			.map(userAnswer -> SubmitedQuestionAnswer.builder()
+				.questionId(userAnswer.getQuestionId())
+				.answer(userAnswer.getCorrectAnswer())
+				.build())
+			.toList();
+
+		QuizDTO quizDTO = QuizDTO.builder()
+			.id(quiz.getId())
+			.title(quiz.getTitle())
+			.description(quiz.getDescription())
+			.componentType(quiz.getComponentType())
+			.difficultyLevel(quiz.getDifficultyLevel())
+			.maxTime(quiz.getMaxTime())
+			.chapters(chapterDTOList)
+			.questions(questionDTOList)
+			.endTime(timeShouldEnd)
+			.createdBy(quiz.getCreatedBy())
+			.build();
+
+		log.info("[USER-ID: {}] Submitted quiz.", currentUser.getUserId());
+
+		return SubmitQuizDTO.builder()
+			.quiz(quizDTO)
+			.startedAt(quizStudent.getStartAt())
+			.enddedAt(quizStudent.getEndedTime())
+			.correctCount(correctCount)
+			.correctAnswers(correctAnswers)
+			.build();
+
+	}
+
+	private List<UserAnswer> getUsersAnswersAndCorrect(List<SubmitedQuestionAnswer> submitedQuestionAnswers,
+			Quiz quiz,
+			User user) {
+		Map<UUID, Question> questionMap = new HashMap<>();
+
+		for (Question question : quiz.getQuestions()) {
+			questionMap.put(question.getId(), question);
+		}
+
+		return submitedQuestionAnswers.stream()
+			.map(submitedQuestionAnswer -> {
+
+				Question question = questionMap.get(submitedQuestionAnswer.getQuestionId());
+
+				return UserAnswer.builder()
+					.userId(user.getUserId())
+					.quizId(quiz.getId())
+					.questionId(question.getId())
+					.answer(submitedQuestionAnswer.getAnswer())
+					.correctAnswer(question.getCorrectAnswer())
+					.build();
+			})
+			.toList();
+	}
+
+	private Integer countCorrectAnswers(List<UserAnswer> usersAnswers) {
+		int correct = 0;
+		for (UserAnswer userAnswer : usersAnswers) {
+			if (userAnswer.getAnswer()
+				.shortValue() == userAnswer.getCorrectAnswer()
+					.shortValue()) {
+				correct += 1;
+			}
+		}
+		return correct;
 	}
 
 	public Quiz getQuizById(UUID quizId) {
