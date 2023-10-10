@@ -79,6 +79,7 @@ begin
         quiz_id uuid NOT NULL,
         user_id uuid NOT NULL,
         created_by uuid null,
+        start_after timestamptz null,
         started_at timestamptz null,
         end_time timestamptz null,
         ended_time timestamptz null,

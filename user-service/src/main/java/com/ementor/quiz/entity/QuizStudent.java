@@ -32,6 +32,9 @@ public class QuizStudent extends CommonEntity {
 	@Column(name = "created_by")
 	private UUID createdBy;
 
+	@Column(name = "start_after")
+	private OffsetDateTime startAfter;
+
 	@Column(name = "started_at")
 	private OffsetDateTime startAt;
 

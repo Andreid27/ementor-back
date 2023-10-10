@@ -12,15 +12,14 @@ import com.ementor.quiz.repo.QuizzesStudentsRepo;
 import com.ementor.quiz.repo.QuizzesViewRepo;
 import com.ementor.quiz.repo.UsersAnswersRepo;
 import jakarta.persistence.EntityManager;
+import java.time.OffsetDateTime;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.OffsetDateTime;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -143,7 +142,6 @@ public class QuizzesService {
 					.answer3(question.getAnswer3())
 					.answer4(question.getAnswer4())
 					.answer5(question.getAnswer5())
-					.correctAnswer(question.getCorrectAnswer())
 					.difficultyLevel(question.getDifficultyLevel())
 					.source(question.getSource())
 					.sourcePage(question.getSourcePage())
@@ -234,37 +232,82 @@ public class QuizzesService {
 		log.info("[USER-ID: {}] Deleted quiz with id {}.", currentUserId, quizId);
 	}
 
-	public QuizDTO startQuiz(UUID quizId) {
+	public void assign(List<AssignQuizDTO> dtoList) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+		log.info("[USER-ID: {}] Assigning quizzes.", currentUserId);
+
+		List<QuizStudent> quizStudents = dtoList.stream()
+			.map(assignQuizDTO -> {
+				QuizStudent quizStudentToAssign = QuizStudent.builder()
+					.quizId(assignQuizDTO.getQuizId())
+					.userId(assignQuizDTO.getUserId())
+					.startAfter(assignQuizDTO.getStartAfter())
+					.createdBy(currentUserId)
+					.build();
+				quizStudentToAssign.setExpires(assignQuizDTO.getExpires());
+				return quizStudentToAssign;
+			})
+			.toList();
+
+		quizzesStudentsRepo.saveAll(quizStudents);
+
+		log.info("[USER-ID: {}] Assigned quizzes.", currentUserId);
+	}
+
+	public PaginatedResponse<QuizStudent> getPaginatedQuizzesStudents(PaginatedRequest request) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
+		User user = securityService.getCurrentUser();
+		String filterCriteria = "userId";
+
+		log.info("[USER-ID:{}] Getting quizzes list - page {}", user.getUserId(), request.getPage());
+
+		final PaginatedRequestSpecification<QuizStudent> spec = PaginatedRequestSpecificationUtils
+			.genericSpecification(request.bind(QuizStudent.class), false, QuizStudent.class);
+		if (user.getRole()
+			.equals(RoleEnum.STUDENT)) {
+			PaginationUtils.addFilterCriteria(request, filterCriteria, user.getUserId());
+		}
+		Page<QuizStudent> findAll = quizzesStudentsRepo.findAll(spec, ServiceUtils.convertToPageRequest(request));
+		PaginatedResponse<QuizStudent> paginatedResponse = new PaginatedResponse<>();
+		if (user.getRole()
+			.equals(RoleEnum.STUDENT)) {
+			PaginationUtils.removeFilterCriteria(request, filterCriteria);
+		}
+		paginatedResponse.setData(findAll.getContent()
+			.stream()
+			.toList());
+		ServiceUtils.extractPaginationMetadata(findAll, paginatedResponse);
+		paginatedResponse.setCurrentRequest(request);
+
+		log.info("[USER-ID:{}] Got quizzes list - page {}", user.getUserId(), request.getPage());
+
+		return paginatedResponse;
+	}
+
+	public QuizDTO startQuiz(UUID quizStudentId) {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.STUDENT);
 
 		User currentUser = securityService.getCurrentUser();
 
 		log.info("[USER-ID: {}] Starting quiz.", currentUser.getUserId());
-		List<QuizStudent> quizStudents = quizzesStudentsRepo.findAllByUserId(currentUser.getUserId());
 
-		Optional<QuizStudent> quizStudent = quizStudents.stream()
-			.filter(quizStudentElement -> quizStudentElement.getQuizId()
-				.equals(quizId))
-			.findFirst();
+		QuizStudent quizStudent = getQuizStudentById(quizStudentId);
 
-		if (quizStudent.isEmpty()) {
-			log.error(STUDENT_FORBIDDEN);
-			throw new EmentorApiError(STUDENT_FORBIDDEN, 404);
-		}
+		// TODO implement start_after verification for start and submit
 
-		if (quizStudent.get()
-			.getStartAt() != null) {
+		if (quizStudent.getStartAt() != null) {
 			log.error("Student does not have access to this test.It already has been started.");
 			throw new EmentorApiError("Student does not have access to this test.It already has been started.", 401);
 		}
 
-		Quiz quiz = getQuizById(quizId);
+		Quiz quiz = getQuizById(quizStudent.getQuizId());
 		List<ChapterDTO> chapterDTOList = buildChaptersDtoList(quiz.getChapters(), currentUser);
 		List<QuestionDTO> questionDTOList = buildQuestionDtoList(quiz.getQuestions(), currentUser);
 
-		QuizStudent quizStudentToUpdate = quizStudent.get();
-
-		quizStudentToUpdate.setStartAt(OffsetDateTime.now());
+		quizStudent.setStartAt(OffsetDateTime.now());
 		OffsetDateTime timeShouldEnd = OffsetDateTime.now()
 			.plusMinutes(quiz.getMaxTime());
 
@@ -283,8 +326,8 @@ public class QuizzesService {
 			.createdBy(quiz.getCreatedBy())
 			.build();
 
-		quizStudentToUpdate.setEndTime(timeShouldEnd.plusMinutes(3));
-		quizzesStudentsRepo.save(quizStudentToUpdate);
+		quizStudent.setEndTime(timeShouldEnd.plusMinutes(3));
+		quizzesStudentsRepo.save(quizStudent);
 
 		log.info("[USER-ID: {}] Started quiz.", currentUser.getUserId());
 
@@ -296,29 +339,18 @@ public class QuizzesService {
 
 		// TODO refactor this method
 
+		// TODO implement start_after verification for start and submit
+
 		User currentUser = securityService.getCurrentUser();
 
 		log.info("[USER-ID: {}] Submitting quiz.", currentUser.getUserId());
-		List<QuizStudent> quizStudents = quizzesStudentsRepo.findAllByUserId(currentUser.getUserId());
 
-		// TODO move this to quiz_attempts create a new entity(with fk on
-		// quiz_students and let them multiple attempts)
-		Optional<QuizStudent> quizStudentOptional = quizStudents.stream()
-			.filter(quizStudentElement -> quizStudentElement.getQuizId()
-				.equals(dto.getQuizId()))
-			.findFirst();
+		QuizStudent quizStudent = getQuizStudentById(dto.getQuizStudentId());
 
-		if (quizStudentOptional.isEmpty()) {
-			log.error(STUDENT_FORBIDDEN);
-			throw new EmentorApiError(STUDENT_FORBIDDEN, 404);
-		}
-
-		if (quizStudentOptional.get()
-			.getStartAt() == null) {
+		if (quizStudent.getStartAt() == null) {
 			log.error("Student does not have access to this test. It never has been started.");
 			throw new EmentorApiError("Student does not have access to this test. It never has been started.", 404);
 		}
-		QuizStudent quizStudent = quizStudentOptional.get();
 		quizStudent.setEndedTime(OffsetDateTime.now());
 
 		Quiz quiz = getQuizById(quizStudent.getQuizId());
@@ -407,5 +439,10 @@ public class QuizzesService {
 	public Quiz getQuizById(UUID quizId) {
 		return quizzesRepo.findById(quizId)
 			.orElseThrow(() -> new EmentorApiError("Quiz not found", 404));
+	}
+
+	public QuizStudent getQuizStudentById(UUID quizId) {
+		return quizzesStudentsRepo.findById(quizId)
+			.orElseThrow(() -> new EmentorApiError("Quiz not assigned to this student", 404));
 	}
 }
