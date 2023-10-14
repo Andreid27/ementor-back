@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "quizzes_view")
+@Table(name = "quizzes_students_view")
 public class QuizzesStudentsView implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 7174219640626269429L;

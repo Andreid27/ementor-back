@@ -10,7 +10,10 @@ import com.ementor.quiz.enums.RoleEnum;
 import com.ementor.quiz.repo.*;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +262,7 @@ public class QuizzesService {
 	public PaginatedResponse<QuizzesStudentsView> getPaginatedQuizzesStudents(PaginatedRequest request) {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
 		User user = securityService.getCurrentUser();
-		String filterCriteria = "userId";
+		String filterCriteria = "studentId";
 
 		log.info("[USER-ID:{}] Getting quizzes list - page {}", user.getUserId(), request.getPage());
 
