@@ -7,7 +7,8 @@ do $body$
         CREATE VIEW quizzes_students_view AS
         SELECT
             qv.*,
-            qs.user_id
+            qs.user_id,
+            qs.id as attempt_id
         FROM
             quizzes_students qs
                 LEFT JOIN

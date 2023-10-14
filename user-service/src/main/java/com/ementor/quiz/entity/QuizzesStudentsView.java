@@ -22,11 +22,14 @@ public class QuizzesStudentsView implements Serializable {
 	private static final long serialVersionUID = 7174219640626269429L;
 
 	@Id
+	@Column(name = "attempt_id")
+	private UUID id;
+
 	@Column(name = "user_id")
 	private UUID studentId;
 
 	@Column(name = "quiz_id")
-	private UUID id;
+	private UUID quizId;
 
 	@Column(name = "quiz_title")
 	private String title;
