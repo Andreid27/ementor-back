@@ -7,10 +7,7 @@ import com.ementor.quiz.core.service.SecurityService;
 import com.ementor.quiz.dto.*;
 import com.ementor.quiz.entity.*;
 import com.ementor.quiz.enums.RoleEnum;
-import com.ementor.quiz.repo.QuizzesRepo;
-import com.ementor.quiz.repo.QuizzesStudentsRepo;
-import com.ementor.quiz.repo.QuizzesViewRepo;
-import com.ementor.quiz.repo.UsersAnswersRepo;
+import com.ementor.quiz.repo.*;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -37,6 +34,8 @@ public class QuizzesService {
 	private final QuizzesRepo quizzesRepo;
 
 	private final QuizzesViewRepo quizzesViewRepo;
+
+	private final QuizzesStudentsViewRepo quizzesStudentsViewRepo;
 
 	private final QuizzesStudentsRepo quizzesStudentsRepo;
 
@@ -257,21 +256,22 @@ public class QuizzesService {
 		log.info("[USER-ID: {}] Assigned quizzes.", currentUserId);
 	}
 
-	public PaginatedResponse<QuizStudent> getPaginatedQuizzesStudents(PaginatedRequest request) {
+	public PaginatedResponse<QuizzesStudentsView> getPaginatedQuizzesStudents(PaginatedRequest request) {
 		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
 		User user = securityService.getCurrentUser();
 		String filterCriteria = "userId";
 
 		log.info("[USER-ID:{}] Getting quizzes list - page {}", user.getUserId(), request.getPage());
 
-		final PaginatedRequestSpecification<QuizStudent> spec = PaginatedRequestSpecificationUtils
-			.genericSpecification(request.bind(QuizStudent.class), false, QuizStudent.class);
+		final PaginatedRequestSpecification<QuizzesStudentsView> spec = PaginatedRequestSpecificationUtils
+			.genericSpecification(request.bind(QuizzesStudentsView.class), false, QuizzesStudentsView.class);
 		if (user.getRole()
 			.equals(RoleEnum.STUDENT)) {
 			PaginationUtils.addFilterCriteria(request, filterCriteria, user.getUserId());
 		}
-		Page<QuizStudent> findAll = quizzesStudentsRepo.findAll(spec, ServiceUtils.convertToPageRequest(request));
-		PaginatedResponse<QuizStudent> paginatedResponse = new PaginatedResponse<>();
+		Page<QuizzesStudentsView> findAll = quizzesStudentsViewRepo.findAll(spec,
+				ServiceUtils.convertToPageRequest(request));
+		PaginatedResponse<QuizzesStudentsView> paginatedResponse = new PaginatedResponse<>();
 		if (user.getRole()
 			.equals(RoleEnum.STUDENT)) {
 			PaginationUtils.removeFilterCriteria(request, filterCriteria);
