@@ -95,14 +95,14 @@ begin
     CREATE TABLE users_answers (
       id uuid not null,
       user_id uuid NOT NULL,
-      quiz_id uuid NOT NULL,
+      quizzes_students_id uuid NOT NULL,
       question_id uuid NOT NULL,
       answer smallint not null,
       correct_answer smallint not null,
       creation timestamptz null,
       modified timestamptz null,
       expires timestamptz null,
-      CONSTRAINT users_answers_quiz_id_fkey2 FOREIGN KEY (quiz_id) REFERENCES quizzes(id),
+      CONSTRAINT users_answers_quiz_students_id_fkey1 FOREIGN KEY (quizzes_students_id) REFERENCES quizzes_students(id),
       PRIMARY KEY (id)
     );
 

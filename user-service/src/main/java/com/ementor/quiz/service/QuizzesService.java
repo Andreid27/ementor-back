@@ -101,6 +101,10 @@ public class QuizzesService {
 
 		if (currentUser.getRole()
 			.equals(RoleEnum.STUDENT)) {
+
+			quizDTO.setQuizPreviousAttempts(getStudentAttempts(quizId, currentUser.getUserId()).stream()
+				.filter(quizStudent -> quizStudent.getEndTime() != null)
+				.toList());
 			return quizDTO;
 		}
 
@@ -357,7 +361,8 @@ public class QuizzesService {
 		quizStudent.setEndedTime(OffsetDateTime.now());
 
 		Quiz quiz = getQuizById(quizStudent.getQuizId());
-		List<UserAnswer> usersAnswers = getUsersAnswersAndCorrect(dto.getSubmitedQuestionAnswers(), quiz, currentUser);
+		List<UserAnswer> usersAnswers = getUsersAnswersAndCorrect(dto.getSubmitedQuestionAnswers(), quiz,
+				dto.getQuizStudentId(), currentUser);
 
 		Integer correctCount = countCorrectAnswers(usersAnswers);
 		quizStudent.setCorrectAnswers(correctCount);
@@ -402,8 +407,68 @@ public class QuizzesService {
 
 	}
 
+	public SubmitQuizDTO getAttempt(UUID quizStudentId) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR, RoleEnum.STUDENT);
+
+		// TODO refactor this method
+
+		User currentUser = securityService.getCurrentUser();
+
+		log.info("[USER-ID: {}] Submitting quiz.", currentUser.getUserId());
+
+		QuizStudent quizStudent = getQuizStudentById(quizStudentId);
+
+		if (quizStudent.getStartAt() == null || quizStudent.getEndTime() == null) {
+			log.error("Student does not have access to this test. It never has been completed.");
+			throw new EmentorApiError("Student does not have access to this test. It never has been completed.", 404);
+		}
+
+		Quiz quiz = getQuizById(quizStudent.getQuizId());
+		List<UserAnswer> usersAnswers = getUsersAnswersByQuizStudentId(quizStudentId);
+
+		Integer correctCount = countCorrectAnswers(usersAnswers);
+		quizStudent.setCorrectAnswers(correctCount);
+
+		List<ChapterDTO> chapterDTOList = buildChaptersDtoList(quiz.getChapters(), currentUser);
+		List<QuestionDTO> questionDTOList = buildQuestionDtoList(quiz.getQuestions(), currentUser);
+		OffsetDateTime timeShouldEnd = OffsetDateTime.now()
+			.plusMinutes(quiz.getMaxTime());
+
+		List<SubmitedQuestionAnswer> correctAnswers = usersAnswers.stream()
+			.map(userAnswer -> SubmitedQuestionAnswer.builder()
+				.questionId(userAnswer.getQuestionId())
+				.answer(userAnswer.getCorrectAnswer())
+				.build())
+			.toList();
+
+		QuizDTO quizDTO = QuizDTO.builder()
+			.id(quiz.getId())
+			.title(quiz.getTitle())
+			.description(quiz.getDescription())
+			.componentType(quiz.getComponentType())
+			.difficultyLevel(quiz.getDifficultyLevel())
+			.maxTime(quiz.getMaxTime())
+			.chapters(chapterDTOList)
+			.questions(questionDTOList)
+			.endTime(timeShouldEnd)
+			.createdBy(quiz.getCreatedBy())
+			.build();
+
+		log.info("[USER-ID: {}] Submitted quiz.", currentUser.getUserId());
+
+		return SubmitQuizDTO.builder()
+			.quiz(quizDTO)
+			.startedAt(quizStudent.getStartAt())
+			.enddedAt(quizStudent.getEndedTime())
+			.correctCount(correctCount)
+			.correctAnswers(correctAnswers)
+			.build();
+
+	}
+
 	private List<UserAnswer> getUsersAnswersAndCorrect(List<SubmitedQuestionAnswer> submitedQuestionAnswers,
 			Quiz quiz,
+			UUID quizStudentId,
 			User user) {
 		Map<UUID, Question> questionMap = new HashMap<>();
 
@@ -418,7 +483,7 @@ public class QuizzesService {
 
 				return UserAnswer.builder()
 					.userId(user.getUserId())
-					.quizId(quiz.getId())
+					.quizStudentId(quizStudentId)
 					.questionId(question.getId())
 					.answer(submitedQuestionAnswer.getAnswer())
 					.correctAnswer(question.getCorrectAnswer())
@@ -447,5 +512,14 @@ public class QuizzesService {
 	public QuizStudent getQuizStudentById(UUID quizId) {
 		return quizzesStudentsRepo.findById(quizId)
 			.orElseThrow(() -> new EmentorApiError("Quiz not assigned to this student", 404));
+	}
+
+	public List<QuizStudent> getStudentAttempts(UUID quizId,
+			UUID studentId) {
+		return quizzesStudentsRepo.findAllByUserIdAndQuizId(studentId, quizId);
+	}
+
+	public List<UserAnswer> getUsersAnswersByQuizStudentId(UUID quizStudentId) {
+		return usersAnswersRepo.findAllUserAnswerByQuizStudentId(quizStudentId);
 	}
 }

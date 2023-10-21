@@ -2,9 +2,11 @@
 package com.ementor.quiz.repo;
 
 import com.ementor.quiz.entity.UserAnswer;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface UsersAnswersRepo extends JpaRepository<UserAnswer, UUID>, JpaSpecificationExecutor<UserAnswer> {
+	List<UserAnswer> findAllUserAnswerByQuizStudentId(UUID quizStudentId);
 }

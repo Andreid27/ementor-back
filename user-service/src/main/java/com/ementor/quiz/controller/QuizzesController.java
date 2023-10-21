@@ -106,4 +106,13 @@ public class QuizzesController {
 	public ResponseEntity<SubmitQuizDTO> submit(@RequestBody @Valid SubmitQuizDTO dto) {
 		return ResponseEntity.ok(service.submit(dto));
 	}
+
+	@GetMapping("/attempt/{id}")
+	@Operation(summary = "Get quiz by id")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<SubmitQuizDTO> getAttempt(@PathVariable UUID id) {
+		return ResponseEntity.ok(service.getAttempt(id));
+	}
 }

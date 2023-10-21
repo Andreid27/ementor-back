@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface QuizzesStudentsRepo extends JpaRepository<QuizStudent, UUID>, JpaSpecificationExecutor<QuizStudent> {
-	List<QuizStudent> findAllByUserId(UUID userId);
+	List<QuizStudent> findAllByUserIdAndQuizId(UUID userId,
+			UUID quizId);
 }

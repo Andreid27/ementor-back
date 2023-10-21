@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "users_answers")
 public class UserAnswer extends CommonEntity {
 
-	@Column(name = "quiz_id")
-	private UUID quizId;
+	@Column(name = "quizzes_students_id")
+	private UUID quizStudentId;
 
 	@Column(name = "question_id")
 	private UUID questionId;

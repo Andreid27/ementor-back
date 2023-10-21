@@ -1,6 +1,7 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.quiz.dto;
 
+import com.ementor.quiz.entity.QuizStudent;
 import com.ementor.quiz.enums.QuizComponentType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
@@ -44,4 +45,6 @@ public class QuizDTO {
 	OffsetDateTime endTime;
 
 	private UUID createdBy;
+
+	private List<QuizStudent> quizPreviousAttempts;
 }
