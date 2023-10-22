@@ -47,4 +47,6 @@ public class QuizDTO {
 	private UUID createdBy;
 
 	private List<QuizStudent> quizPreviousAttempts;
+
+	private Integer remainedAttempts;
 }

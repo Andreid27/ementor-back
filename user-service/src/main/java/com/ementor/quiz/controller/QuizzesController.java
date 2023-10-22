@@ -5,6 +5,7 @@ import com.ementor.quiz.core.entity.pagination.PaginatedRequest;
 import com.ementor.quiz.core.entity.pagination.PaginatedResponse;
 import com.ementor.quiz.dto.AssignQuizDTO;
 import com.ementor.quiz.dto.QuizDTO;
+import com.ementor.quiz.dto.StudentStatsDTO;
 import com.ementor.quiz.dto.SubmitQuizDTO;
 import com.ementor.quiz.entity.QuizzesStudentsView;
 import com.ementor.quiz.entity.QuizzesView;
@@ -114,5 +115,14 @@ public class QuizzesController {
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public ResponseEntity<SubmitQuizDTO> getAttempt(@PathVariable UUID id) {
 		return ResponseEntity.ok(service.getAttempt(id));
+	}
+
+	@GetMapping("/dashboard-stats")
+	@Operation(summary = "Get quiz by id")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public ResponseEntity<StudentStatsDTO> getDashboardStats() {
+		return ResponseEntity.ok(service.getStudentStatsDTO());
 	}
 }

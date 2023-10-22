@@ -5,6 +5,8 @@ import com.ementor.quiz.core.entity.pagination.*;
 import com.ementor.quiz.core.exceptions.EmentorApiError;
 import com.ementor.quiz.core.service.SecurityService;
 import com.ementor.quiz.dto.*;
+import com.ementor.quiz.dto.StudentStatsComponetsDTOs.StudentQuestionsDTO;
+import com.ementor.quiz.dto.StudentStatsComponetsDTOs.StudentQuizzesDTO;
 import com.ementor.quiz.entity.*;
 import com.ementor.quiz.enums.RoleEnum;
 import com.ementor.quiz.repo.*;
@@ -101,8 +103,13 @@ public class QuizzesService {
 
 		if (currentUser.getRole()
 			.equals(RoleEnum.STUDENT)) {
+			List<QuizStudent> attempts = getStudentAttempts(quizId, currentUser.getUserId());
+			long remainedAttempts = attempts.stream()
+				.filter(quizStudent -> quizStudent.getStartAt() == null)
+				.count();
+			quizDTO.setRemainedAttempts((int) remainedAttempts);
 
-			quizDTO.setQuizPreviousAttempts(getStudentAttempts(quizId, currentUser.getUserId()).stream()
+			quizDTO.setQuizPreviousAttempts(attempts.stream()
 				.filter(quizStudent -> quizStudent.getEndTime() != null)
 				.toList());
 			return quizDTO;
@@ -441,6 +448,13 @@ public class QuizzesService {
 				.build())
 			.toList();
 
+		List<SubmitedQuestionAnswer> submitedQuestionAnswers = usersAnswers.stream()
+			.map(userAnswer -> SubmitedQuestionAnswer.builder()
+				.questionId(userAnswer.getQuestionId())
+				.answer(userAnswer.getAnswer())
+				.build())
+			.toList();
+
 		QuizDTO quizDTO = QuizDTO.builder()
 			.id(quiz.getId())
 			.title(quiz.getTitle())
@@ -461,9 +475,43 @@ public class QuizzesService {
 			.startedAt(quizStudent.getStartAt())
 			.enddedAt(quizStudent.getEndedTime())
 			.correctCount(correctCount)
+			.submitedQuestionAnswers(submitedQuestionAnswers)
 			.correctAnswers(correctAnswers)
 			.build();
 
+	}
+
+	public StudentStatsDTO getStudentStatsDTO() {
+		User currentUser = securityService.getCurrentUser();
+		log.info("[USER-ID: {}] Getting stats page.", currentUser.getUserId());
+		securityService.hasAnyRole(RoleEnum.STUDENT);
+
+		List<UserAnswer> userAnswers = getUsersAnswersByStudentId(currentUser.getUserId());
+		StudentQuestionsDTO studentQuestionsDTO = buildStudentStatsQuestionsDTO(userAnswers);
+		Integer quizzesTotal = quizzesStudentsRepo.countDistinctQuizIdByUserId(currentUser.getUserId());
+
+		StudentStatsDTO studentStatsDTO = StudentStatsDTO.builder()
+			.questions(studentQuestionsDTO)
+			.quizzes(StudentQuizzesDTO.builder()
+				.completedQuizzes(Long.valueOf(quizzesTotal))
+				.build())
+			.build();
+		log.info("[USER-ID: {}] Got stats page.", currentUser.getUserId());
+
+		return studentStatsDTO;
+	}
+
+	private StudentQuestionsDTO buildStudentStatsQuestionsDTO(List<UserAnswer> userAnswers) {
+		Long userTotalAnswers = (long) userAnswers.size();
+		Long userCorectAnswers = userAnswers.stream()
+			.filter(userAnswer -> userAnswer.getAnswer()
+				.equals(userAnswer.getCorrectAnswer()))
+			.count();
+
+		return StudentQuestionsDTO.builder()
+			.totalQuestions(userTotalAnswers)
+			.correctQuestions(userCorectAnswers)
+			.build();
 	}
 
 	private List<UserAnswer> getUsersAnswersAndCorrect(List<SubmitedQuestionAnswer> submitedQuestionAnswers,
@@ -521,5 +569,8 @@ public class QuizzesService {
 
 	public List<UserAnswer> getUsersAnswersByQuizStudentId(UUID quizStudentId) {
 		return usersAnswersRepo.findAllUserAnswerByQuizStudentId(quizStudentId);
+	}
+	public List<UserAnswer> getUsersAnswersByStudentId(UUID studentId) {
+		return usersAnswersRepo.findAllUserAnswerByUserId(studentId);
 	}
 }

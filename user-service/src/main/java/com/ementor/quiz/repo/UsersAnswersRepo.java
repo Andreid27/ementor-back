@@ -9,4 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface UsersAnswersRepo extends JpaRepository<UserAnswer, UUID>, JpaSpecificationExecutor<UserAnswer> {
 	List<UserAnswer> findAllUserAnswerByQuizStudentId(UUID quizStudentId);
+
+	List<UserAnswer> findAllUserAnswerByUserId(UUID userId);
+
 }
