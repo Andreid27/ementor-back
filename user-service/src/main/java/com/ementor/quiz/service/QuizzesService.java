@@ -213,6 +213,32 @@ public class QuizzesService {
 	}
 
 	@Transactional
+	public void create(QuizCreateDTO dto) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Creating quiz.", currentUserId);
+
+		List<Chapter> chapters = chaptersService.getChaptersByIds(dto.getChaptersId());
+		List<Question> questions = questionsService.create(dto.getQuestionsList());
+		Quiz quiz = Quiz.builder()
+			.title(dto.getTitle())
+			.description(dto.getDescription())
+			.componentType(dto.getComponentType())
+			.difficultyLevel(dto.getDifficultyLevel())
+			.maxTime(dto.getMaxTime())
+			.chapters(chapters)
+			.questions(questions)
+			.build();
+		quiz.setCreatedBy(currentUserId);
+
+		quizzesRepo.save(quiz);
+
+		log.info("[USER-ID: {}] Created quiz.", currentUserId);
+	}
+
+	@Transactional
 	public void update(QuizDTO dto) {
 		securityService.hasAnyRole(RoleEnum.PROFESSOR);
 		UUID currentUserId = securityService.getCurrentUser()

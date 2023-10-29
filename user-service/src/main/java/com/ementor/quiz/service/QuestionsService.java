@@ -103,6 +103,27 @@ public class QuestionsService {
 
 		log.info("[USER-ID: {}] Created  question.", currentUserId);
 	}
+	@Transactional
+	public List<Question> create(List<QuestionDTO> dtos) {
+		securityService.hasAnyRole(RoleEnum.ADMIN, RoleEnum.PROFESSOR);
+		UUID currentUserId = securityService.getCurrentUser()
+			.getUserId();
+
+		log.info("[USER-ID: {}] Creating  questions.", currentUserId);
+
+		List<Question> questions = dtos.stream()
+			.map(questionDTO -> {
+				Question question = saveQuestion(questionDTO);
+				question.setCreatedBy(currentUserId);
+				return question;
+			})
+			.toList();
+
+		questions = questionsRepo.saveAll(questions);
+		log.info("[USER-ID: {}] Created  questions.", currentUserId);
+
+		return questions;
+	}
 
 	private Question saveQuestion(QuestionDTO dto) {
 		return Question.builder()

@@ -3,10 +3,7 @@ package com.ementor.quiz.controller;
 
 import com.ementor.quiz.core.entity.pagination.PaginatedRequest;
 import com.ementor.quiz.core.entity.pagination.PaginatedResponse;
-import com.ementor.quiz.dto.AssignQuizDTO;
-import com.ementor.quiz.dto.QuizDTO;
-import com.ementor.quiz.dto.StudentStatsDTO;
-import com.ementor.quiz.dto.SubmitQuizDTO;
+import com.ementor.quiz.dto.*;
 import com.ementor.quiz.entity.QuizzesStudentsView;
 import com.ementor.quiz.entity.QuizzesView;
 import com.ementor.quiz.service.QuizzesService;
@@ -51,6 +48,15 @@ public class QuizzesController {
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public void create(@RequestBody @Valid QuizDTO dto) {
+		service.create(dto);
+	}
+
+	@PostMapping("/create-complete")
+	@Operation(summary = "Create a new quiz with all new questions.")
+	@ApiResponses(
+		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
+				@ApiResponse(responseCode = "400", description = "Invalid request")})
+	public void createComplete(@RequestBody @Valid QuizCreateDTO dto) {
 		service.create(dto);
 	}
 
