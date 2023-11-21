@@ -39,7 +39,7 @@ public class QuizzesView implements Serializable {
 	private String chapterTitles;
 
 	@Column(name = "difficulty_level", columnDefinition = "SMALLINT")
-	private Short difficultyLevel;
+	private Integer difficultyLevel;
 
 	@Column(name = "question_count")
 	private Integer questionsCount;

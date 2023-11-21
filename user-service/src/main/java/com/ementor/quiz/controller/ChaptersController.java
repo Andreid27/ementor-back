@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,11 +40,12 @@ public class ChaptersController {
 		return ResponseEntity.ok(service.getChapter(id));
 	}
 
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/create")
 	@Operation(summary = "Create a new chapter.")
 	@ApiResponses(
-		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
-				@ApiResponse(responseCode = "400", description = "Invalid request")})
+		value = {@ApiResponse(responseCode = "201", description = "Request successful"),
+				@ApiResponse(responseCode = "500", description = "Invalid request")})
 	public void create(@RequestBody @Valid ChapterDTO dto) {
 		service.create(dto);
 	}

@@ -2,6 +2,10 @@
 package com.ementor.quiz.service;
 
 import com.ementor.quiz.core.entity.pagination.*;
+import com.ementor.quiz.core.entity.pagination.filter.FilterGroup;
+import com.ementor.quiz.core.entity.pagination.filter.FilterOption;
+import com.ementor.quiz.core.entity.pagination.filter.FilterOptionUtils;
+import com.ementor.quiz.core.entity.pagination.filter.FilterType;
 import com.ementor.quiz.core.exceptions.EmentorApiError;
 import com.ementor.quiz.core.service.SecurityService;
 import com.ementor.quiz.dto.*;
@@ -71,11 +75,22 @@ public class QuizzesService {
 			.stream()
 			.toList());
 		ServiceUtils.extractPaginationMetadata(findAll, paginatedResponse);
+		paginatedResponse.setFilterOptions(filterOptions(request));
 		paginatedResponse.setCurrentRequest(request);
 
 		log.info("[USER-ID:{}] Got quizzes list - page {}", user.getUserId(), request.getPage());
 
 		return paginatedResponse;
+	}
+
+	public List<FilterOption<?>> filterOptions(PaginatedRequest request) {
+		return FilterOptionUtils.createFilterOptions(entityManager, request, QuizzesView.class,
+				new FilterGroup("title", FilterType.TEXT_CONTENT), new FilterGroup("description", FilterType.TEXT_CONTENT),
+				new FilterGroup("componentType", FilterType.TEXT_OPTIONS),
+				new FilterGroup("chapterTitles", FilterType.TEXT_OPTIONS),
+				new FilterGroup("difficultyLevel", FilterType.NUMBER_RANGE),
+				new FilterGroup("questionsCount", FilterType.NUMBER_RANGE),
+				new FilterGroup("maxTime", FilterType.NUMBER_RANGE));
 	}
 
 	public QuizDTO getQuiz(UUID quizId) {
@@ -320,11 +335,24 @@ public class QuizzesService {
 			.stream()
 			.toList());
 		ServiceUtils.extractPaginationMetadata(findAll, paginatedResponse);
+		paginatedResponse.setFilterOptions(filterOptionsQuizzesStudents(request));
 		paginatedResponse.setCurrentRequest(request);
 
 		log.info("[USER-ID:{}] Got quizzes list - page {}", user.getUserId(), request.getPage());
 
 		return paginatedResponse;
+	}
+
+	public List<FilterOption<?>> filterOptionsQuizzesStudents(PaginatedRequest request) {
+		return FilterOptionUtils.createFilterOptions(entityManager, request, QuizzesStudentsView.class,
+				new FilterGroup("studentId", FilterType.TEXT_CONTENT), new FilterGroup("title", FilterType.TEXT_CONTENT),
+				new FilterGroup("description", FilterType.TEXT_CONTENT),
+				new FilterGroup("componentType", FilterType.TEXT_OPTIONS),
+				new FilterGroup("chapterTitles", FilterType.TEXT_OPTIONS),
+				new FilterGroup("difficultyLevel", FilterType.NUMBER_RANGE),
+				new FilterGroup("questionsCount", FilterType.NUMBER_RANGE),
+				new FilterGroup("maxTime", FilterType.NUMBER_RANGE),
+				new FilterGroup("correctAnswers", FilterType.NUMBER_RANGE));
 	}
 
 	public QuizDTO startQuiz(UUID quizStudentId) {

@@ -57,7 +57,9 @@ public class QuestionsService {
 
 	public List<FilterOption<?>> filterOptions(PaginatedRequest request) {
 		return FilterOptionUtils.createFilterOptions(entityManager, request, Question.class,
+				new FilterGroup("content", FilterType.TEXT_CONTENT),
 				new FilterGroup("difficultyLevel", FilterType.NUMBER_OPTIONS),
+				new FilterGroup("source", FilterType.TEXT_OPTIONS), new FilterGroup("sourcePage", FilterType.NUMBER_RANGE),
 				new FilterGroup("content", FilterType.TEXT_CONTENT), new FilterGroup("hint", FilterType.TEXT_CONTENT));
 	}
 

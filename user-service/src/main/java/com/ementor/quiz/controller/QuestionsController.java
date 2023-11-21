@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,7 @@ public class QuestionsController {
 		return ResponseEntity.ok(service.getQuestion(id));
 	}
 
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/create")
 	@Operation(summary = "Create a new question.")
 	@ApiResponses(

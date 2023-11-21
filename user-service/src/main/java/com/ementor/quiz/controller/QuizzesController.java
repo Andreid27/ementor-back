@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class QuizzesController {
 		return ResponseEntity.ok(service.getQuiz(id));
 	}
 
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/create")
 	@Operation(summary = "Create a new quiz.")
 	@ApiResponses(
@@ -51,6 +53,7 @@ public class QuizzesController {
 		service.create(dto);
 	}
 
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/create-complete")
 	@Operation(summary = "Create a new quiz with all new questions.")
 	@ApiResponses(
@@ -78,6 +81,7 @@ public class QuizzesController {
 		service.delete(id);
 	}
 
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/assign")
 	@Operation(summary = "Assign a quiz to a student.")
 	@ApiResponses(
@@ -96,6 +100,7 @@ public class QuizzesController {
 		return service.getPaginatedQuizzesStudents(request);
 	}
 
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	@GetMapping("/start/{id}")
 	@Operation(summary = "Start quiz by id")
 	@ApiResponses(

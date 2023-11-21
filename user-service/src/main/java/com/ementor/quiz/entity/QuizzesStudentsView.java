@@ -45,13 +45,16 @@ public class QuizzesStudentsView implements Serializable {
 	private String chapterTitles;
 
 	@Column(name = "difficulty_level", columnDefinition = "SMALLINT")
-	private Short difficultyLevel;
+	private Integer difficultyLevel;
 
 	@Column(name = "question_count")
 	private Integer questionsCount;
 
 	@Column(name = "max_time")
 	private Integer maxTime;
+
+	@Column(name = "correct_answers")
+	private Integer correctAnswers;
 
 	@Column(name = "created_by")
 	private UUID createdBy;
