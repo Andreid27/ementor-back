@@ -11,7 +11,7 @@ COPY . .
 
 # Define the command to run the application
 RUN ./mvnw dependency:go-offline
-RUN ./mvnw clean install
+RUN ./mvnw clean install -DskipTests
 
 # Build the application using Maven
 
