@@ -92,9 +92,6 @@ public class JwtService {
 	}
 
 	private Date extractExpiration(String token) {
-		System.out.println(token);
-		System.out.println(extractClaim(token, Claims::getExpiration));
-
 		return extractClaim(token, Claims::getExpiration);
 	}
 
