@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class UserController {
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public ResponseEntity<UserGetDTO> get(@PathVariable(required = false) UUID userId) {
-		return ResponseEntity.ok(service.get(userId));
+		return ok(service.get(userId));
 	}
 
 	@PostMapping("/register")
@@ -48,7 +50,7 @@ public class UserController {
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public ResponseEntity<AuthenticationNoProfileResponseDTO> register(@RequestBody @Valid RegisterRequestDTO request) {
-		return ResponseEntity.ok(service.register(request));
+		return ok(service.register(request));
 	}
 
 	@PutMapping("/update")
@@ -71,13 +73,12 @@ public class UserController {
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<Object> authenticate(@RequestBody AuthenticationRequestDTO request) {
-		return ResponseEntity.ok(service.authenticate(request));
+		return ok(service.authenticate(request));
 	}
 
 	@PostMapping("/refresh-token")
-	public void refreshToken(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		service.refreshToken(request, response);
+	public ResponseEntity<AuthenticationResponseDTO> refreshToken(HttpServletRequest request) throws IOException {
+		return ResponseEntity.ok(service.refreshToken(request));
 	}
 
 	@GetMapping("/check-availability/{email}")
@@ -86,7 +87,7 @@ public class UserController {
 		value = {@ApiResponse(responseCode = "200", description = "Request successful"),
 				@ApiResponse(responseCode = "400", description = "Invalid request")})
 	public ResponseEntity<Boolean> get(@PathVariable String email) {
-		return ResponseEntity.ok(service.checkMailAvailability(email));
+		return ok(service.checkMailAvailability(email));
 	}
 
 }

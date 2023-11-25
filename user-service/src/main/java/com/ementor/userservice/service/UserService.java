@@ -243,15 +243,15 @@ public class UserService {
 		storedRedisTokenRepo.saveAll(validUserTokens);
 	}
 
-	public void refreshToken(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+	public AuthenticationResponseDTO refreshToken(HttpServletRequest request) throws IOException {
 		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		final String refreshToken;
 		final String userEmail;
 		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			return;
+			return null;
 		}
 		refreshToken = authHeader.substring(7);
+		log.info(refreshToken);
 		userEmail = jwtService.extractUsername(refreshToken);
 		if (userEmail != null) {
 			var user = this.repository.findByEmail(userEmail)
@@ -264,9 +264,10 @@ public class UserService {
 					.accessToken(accessToken)
 					.refreshToken(refreshToken)
 					.build();
-				new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+				return authResponse;
 			}
 		}
+		throw new EmentorApiError("Refresh Token is not valid.", 401);
 	}
 
 	public Boolean checkMailAvailability(String email) {

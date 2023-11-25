@@ -1,10 +1,13 @@
 /* Copyright (C) 2022-2023 Ementor Romania - All Rights Reserved */
 package com.ementor.userservice.core.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ementor.userservice.core.redis.entity.StoredRedisToken;
 import com.ementor.userservice.core.redis.services.StoredRedisTokenService;
 import com.ementor.userservice.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -90,6 +93,9 @@ public class JwtService {
 	}
 
 	private Date extractExpiration(String token) {
+		System.out.println(token);
+		System.out.println(extractClaim(token, Claims::getExpiration));
+
 		return extractClaim(token, Claims::getExpiration);
 	}
 
@@ -121,9 +127,8 @@ public class JwtService {
 			return true;
 		}
 
-		Date storedTokenDate = extractExpiration(storedRedisToken.get()
-			.getToken());
-		if (storedTokenDate.before(tokenDate)) {
+		DecodedJWT storedTokenDecoded = JWT.decode(storedRedisToken.get().getToken());
+		if (storedTokenDecoded.getExpiresAt().before(tokenDate)) {
 			storedRedisTokenService.buildAndSaveToken(userDetails, token);
 			return true;
 		}
