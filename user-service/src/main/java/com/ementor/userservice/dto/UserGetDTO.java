@@ -3,16 +3,20 @@ package com.ementor.userservice.dto;
 
 import com.ementor.userservice.enums.RoleEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserGetDTO {
+	private UUID id;
+
 	private String email;
 
 	private String phone;

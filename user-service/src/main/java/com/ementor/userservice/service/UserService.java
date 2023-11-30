@@ -73,6 +73,7 @@ public class UserService {
 
 	private UserGetDTO buildUserDto(User user) {
 		return UserGetDTO.builder()
+			.id(user.getId())
 			.email(user.getEmail())
 			.lastName(user.getLastName())
 			.firstName(user.getFirstName())
