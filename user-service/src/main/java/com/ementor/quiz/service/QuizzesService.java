@@ -90,6 +90,7 @@ public class QuizzesService {
 				new FilterGroup("chapterTitles", FilterType.TEXT_OPTIONS),
 				new FilterGroup("difficultyLevel", FilterType.NUMBER_RANGE),
 				new FilterGroup("questionsCount", FilterType.NUMBER_RANGE),
+				new FilterGroup("quizCreation", FilterType.DATE_TIME_RANGE),
 				new FilterGroup("maxTime", FilterType.NUMBER_RANGE));
 	}
 
@@ -128,6 +129,24 @@ public class QuizzesService {
 				.filter(quizStudent -> quizStudent.getEndTime() != null)
 				.toList());
 			return quizDTO;
+		}
+
+		if (currentUser.getRole()
+			.equals(RoleEnum.PROFESSOR)) {
+			List<QuizStudent> studentAttempts = getStudentAttemptsByProfessorId(quizId, currentUser.getUserId());
+
+			quizDTO.setQuizPreviousAttempts(studentAttempts.stream()
+				.filter(quizStudent -> quizStudent.getEndTime() != null)
+				.toList());
+
+			List<SubmitedQuestionAnswer> correctAnswers = quiz.getQuestions()
+				.stream()
+				.map(question -> SubmitedQuestionAnswer.builder()
+					.questionId(question.getId())
+					.answer(question.getCorrectAnswer())
+					.build())
+				.toList();
+			quizDTO.setCorrectAnswers(correctAnswers);
 		}
 
 		quizDTO.setQuestions(questionDTOList);
@@ -352,6 +371,7 @@ public class QuizzesService {
 				new FilterGroup("difficultyLevel", FilterType.NUMBER_RANGE),
 				new FilterGroup("questionsCount", FilterType.NUMBER_RANGE),
 				new FilterGroup("maxTime", FilterType.NUMBER_RANGE),
+				new FilterGroup("assignedAt", FilterType.DATE_TIME_RANGE),
 				new FilterGroup("correctAnswers", FilterType.NUMBER_RANGE));
 	}
 
@@ -531,6 +551,7 @@ public class QuizzesService {
 			.correctCount(correctCount)
 			.submitedQuestionAnswers(submitedQuestionAnswers)
 			.correctAnswers(correctAnswers)
+			.studentId(quizStudent.getUserId())
 			.build();
 
 	}
@@ -619,6 +640,11 @@ public class QuizzesService {
 	public List<QuizStudent> getStudentAttempts(UUID quizId,
 			UUID studentId) {
 		return quizzesStudentsRepo.findAllByUserIdAndQuizId(studentId, quizId);
+	}
+
+	public List<QuizStudent> getStudentAttemptsByProfessorId(UUID quizId,
+			UUID professorId) {
+		return quizzesStudentsRepo.findAllByCreatedByAndAndQuizId(professorId, quizId);
 	}
 
 	public List<UserAnswer> getUsersAnswersByQuizStudentId(UUID quizStudentId) {

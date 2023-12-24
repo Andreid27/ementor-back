@@ -14,4 +14,8 @@ public interface QuizzesStudentsRepo extends JpaRepository<QuizStudent, UUID>, J
 
 	@Query("SELECT COUNT(DISTINCT q.quizId) FROM QuizStudent q WHERE q.userId = :userId AND q.startAt IS NOT NULL")
 	Integer countDistinctQuizIdByUserId(UUID userId);
+
+	List<QuizStudent> findAllByCreatedByAndAndQuizId(UUID userId,
+			UUID quizId);
+
 }

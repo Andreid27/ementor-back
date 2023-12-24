@@ -30,4 +30,6 @@ public class SubmitQuizDTO {
 	private OffsetDateTime enddedAt;
 
 	private Integer correctCount;
+
+	private UUID studentId;
 }

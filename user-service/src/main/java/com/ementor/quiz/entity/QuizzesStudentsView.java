@@ -5,6 +5,7 @@ import com.ementor.quiz.enums.QuizComponentType;
 import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,5 +59,8 @@ public class QuizzesStudentsView implements Serializable {
 
 	@Column(name = "created_by")
 	private UUID createdBy;
+
+	@Column(name = "assigned_at")
+	private OffsetDateTime assignedAt;
 
 }

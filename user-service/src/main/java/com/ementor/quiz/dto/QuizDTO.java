@@ -49,4 +49,6 @@ public class QuizDTO {
 	private List<QuizStudent> quizPreviousAttempts;
 
 	private Integer remainedAttempts;
+
+	private List<SubmitedQuestionAnswer> correctAnswers;
 }
